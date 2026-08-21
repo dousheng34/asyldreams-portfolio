@@ -1,4 +1,4 @@
-import { ArrowDownRight, ChevronRight, Play, Plus, Sparkles } from "lucide-react";
+import { ArrowDownRight, ChevronLeft, ChevronRight, Play, Plus, Sparkles, X } from "lucide-react";
 import { useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 
@@ -8,11 +8,11 @@ const artBoardUrl = "https://www.pinterest.com/asyldreams/art/";
 const defaultVideo = "/manus-storage/asyldreams-moving-paper_7cfea5de.mp4";
 
 const artworks = [
-  { id: "01", title: "Облака", tag: "Pinterest / Art", image: "/manus-storage/asyldreams-art-01_1b019e43.jpg", color: "#DDE9B8", size: "wide" },
-  { id: "02", title: "Розовый кадр", tag: "Pinterest / Art", image: "/manus-storage/asyldreams-art-02_be1a2e8a.jpg", color: "#F5C9C0", size: "portrait" },
-  { id: "03", title: "Тень", tag: "Pinterest / Art", image: "/manus-storage/asyldreams-art-03_6586bdc4.jpg", color: "#BFC5ED", size: "portrait" },
-  { id: "04", title: "Взгляд", tag: "Pinterest / Art", image: "/manus-storage/asyldreams-art-04_8bb316da.jpg", color: "#FFD285", size: "portrait" },
-  { id: "05", title: "Свет", tag: "Pinterest / Art", image: "/manus-storage/asyldreams-art-05_8e78876f.jpg", color: "#C8DED6", size: "wide" },
+  { id: "01", title: "Облака", tag: "Pinterest / Art", mood: "тихий день", image: "/manus-storage/asyldreams-art-01_1b019e43.jpg", color: "#DDE9B8", size: "wide" },
+  { id: "02", title: "Розовый кадр", tag: "Pinterest / Art", mood: "персиковый свет", image: "/manus-storage/asyldreams-art-02_be1a2e8a.jpg", color: "#F5C9C0", size: "portrait" },
+  { id: "03", title: "Тень", tag: "Pinterest / Art", mood: "прохладный лист", image: "/manus-storage/asyldreams-art-03_6586bdc4.jpg", color: "#BFC5ED", size: "portrait" },
+  { id: "04", title: "Взгляд", tag: "Pinterest / Art", mood: "золотой край", image: "/manus-storage/asyldreams-art-04_8bb316da.jpg", color: "#FFD285", size: "portrait" },
+  { id: "05", title: "Свет", tag: "Pinterest / Art", mood: "молочное стекло", image: "/manus-storage/asyldreams-art-05_8e78876f.jpg", color: "#C8DED6", size: "wide" },
 ];
 
 const lenses = {
@@ -26,16 +26,26 @@ type LensKey = keyof typeof lenses;
 
 export default function Home() {
   const [activeLens, setActiveLens] = useState<LensKey>("milk");
-  const [videoSource, setVideoSource] = useState(defaultVideo);
-  const [videoName, setVideoName] = useState("движущийся коллаж");
+  const [videoSources, setVideoSources] = useState<string[]>([defaultVideo]);
+  const [videoIndex, setVideoIndex] = useState(0);
+  const [activeWorkIndex, setActiveWorkIndex] = useState<number | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const lens = lenses[activeLens];
+  const activeWork = activeWorkIndex === null ? null : artworks[activeWorkIndex];
 
   function chooseVideo(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setVideoSource(URL.createObjectURL(file));
-    setVideoName(file.name.replace(/\.[^/.]+$/, ""));
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
+    setVideoSources(files.map((file) => URL.createObjectURL(file)));
+    setVideoIndex(0);
+  }
+
+  function moveVideo(direction: number) {
+    setVideoIndex((index) => (index + direction + videoSources.length) % videoSources.length);
+  }
+
+  function moveWork(direction: number) {
+    setActiveWorkIndex((index) => index === null ? 0 : (index + direction + artworks.length) % artworks.length);
   }
 
   return (
@@ -72,13 +82,14 @@ export default function Home() {
 
             <div id="video" className="video-panel relative flex min-h-[540px] flex-col justify-between overflow-hidden p-7 sm:p-10 lg:min-h-[680px] lg:p-14" style={{ backgroundColor: lens.color }}>
               <div className="relative z-10 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em]">
-                <span>Motion / 01</span>
-                <span className="flex items-center gap-2"><Play className="h-3.5 w-3.5 fill-current" /> {videoName}</span>
+                <span>Motion / {String(videoIndex + 1).padStart(2, "0")}</span>
+                <span className="flex items-center gap-2"><Play className="h-3.5 w-3.5 fill-current" /> Движение</span>
               </div>
               <div className="video-orbit absolute left-1/2 top-1/2 aspect-square w-[min(83vw,430px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#1d2547]/20 p-3 sm:w-[min(52vw,480px)]">
+                <span className="lens-note">Линза 01<br />меняет цвет</span>
                 <div className="relative h-full w-full overflow-hidden rounded-full border-4 border-[#FAF3E8] bg-[#B9E6E6] shadow-[14px_18px_0_rgba(29,37,71,0.16)]">
-                  <video key={videoSource} autoPlay muted loop playsInline className="h-full w-full object-cover transition-[filter] duration-500" style={{ filter: lens.filter }}>
-                    <source src={videoSource} type="video/mp4" />
+                  <video key={videoSources[videoIndex]} autoPlay muted loop playsInline className="h-full w-full object-cover transition-[filter] duration-500" style={{ filter: lens.filter }}>
+                    <source src={videoSources[videoIndex]} type="video/mp4" />
                   </video>
                   <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,.46),transparent_34%)]" />
                 </div>
@@ -89,8 +100,11 @@ export default function Home() {
                     <button key={key} type="button" onClick={() => setActiveLens(key)} aria-pressed={activeLens === key} className={`lens-button ${activeLens === key ? "is-active" : ""}`}>{lenses[key].label}</button>
                   ))}
                 </div>
-                <button type="button" className="upload-video" onClick={() => fileInput.current?.click()}><Plus className="h-4 w-4" /> Выбрать своё видео</button>
-                <input ref={fileInput} className="hidden" type="file" accept="video/*" onChange={chooseVideo} />
+                <div className="flex items-center justify-between gap-4">
+                  <button type="button" className="upload-video" onClick={() => fileInput.current?.click()}><Plus className="h-4 w-4" /> Добавить мои видео</button>
+                  {videoSources.length > 1 && <div className="video-carousel" aria-label="Листать видео"><button type="button" onClick={() => moveVideo(-1)} aria-label="Предыдущее видео"><ChevronLeft className="h-4 w-4" /></button><span>{videoIndex + 1} / {videoSources.length}</span><button type="button" onClick={() => moveVideo(1)} aria-label="Следующее видео"><ChevronRight className="h-4 w-4" /></button></div>}
+                </div>
+                <input ref={fileInput} className="hidden" type="file" accept="video/*" multiple onChange={chooseVideo} />
               </div>
             </div>
           </div>
@@ -107,17 +121,17 @@ export default function Home() {
             </div>
 
             <div className="art-layout">
-              {artworks.map((artwork) => (
-                <a key={artwork.id} href={artBoardUrl} target="_blank" rel="noreferrer" className={`paper-work ${artwork.size}`}>
+              {artworks.map((artwork, index) => (
+                <button key={artwork.id} type="button" className={`paper-work ${artwork.size}`} onClick={() => setActiveWorkIndex(index)} aria-label={`Открыть работу ${artwork.title}`}>
                   <div className="paper-mat" style={{ backgroundColor: artwork.color }}>
-                    <span className="paper-tab">Лист {artwork.id}</span>
+                    <span className="paper-tab">Лист {artwork.id} / {artwork.mood}</span>
                     <img src={artwork.image} alt={artwork.title} className="work-image" />
                   </div>
                   <div className="mt-3 flex items-start justify-between gap-4">
                     <div><p className="work-index">{artwork.id} / {artwork.tag}</p><h3 className="juz-heading mt-1 text-3xl tracking-[-0.045em]">{artwork.title}</h3></div>
                     <ArrowDownRight className="mt-2 h-4 w-4" />
                   </div>
-                </a>
+                </button>
               ))}
             </div>
           </div>
@@ -131,9 +145,13 @@ export default function Home() {
         </section>
 
         <section id="contacts" className="contacts-paper px-4 pb-8 pt-16 sm:px-7 sm:pt-24 lg:px-10">
-          <div className="mx-auto flex max-w-[1540px] flex-col justify-between gap-12 border-t-2 border-[#1d2547] pt-7 lg:flex-row lg:items-end">
-            <div><p className="paper-kicker"><span /> AsylDreams / Moving Paper</p><h2 className="juz-heading mt-4 text-[clamp(3.2rem,6.5vw,7.5rem)] leading-[0.8] tracking-[-0.07em]">СМОТРИ<br />ДАЛЬШЕ.</h2></div>
-            <div className="flex flex-col gap-2 pb-2">
+          <div className="contact-plate mx-auto max-w-[1540px] overflow-hidden p-7 sm:p-10 lg:grid lg:grid-cols-[1.1fr_.9fr] lg:p-14">
+            <div className="flex flex-col justify-between gap-12">
+              <div><p className="paper-kicker"><span /> AsylDreams / Moving Paper</p><h2 className="juz-heading mt-5 text-[clamp(3.2rem,6.5vw,7.5rem)] leading-[0.8] tracking-[-0.07em]">СМОТРИ<br />ДАЛЬШЕ.</h2></div>
+              <a className="pinterest-portal" href={pinterestUrl} target="_blank" rel="noreferrer"><span className="portal-orbit"><span>P</span></span><span>Смотреть в Pinterest</span><ArrowDownRight className="h-6 w-6" /></a>
+            </div>
+            <div className="contact-routes mt-10 lg:mt-0">
+              <p className="contact-caption">Ещё кадры и настроение</p>
               <a className="contact-paper" href={pinterestUrl} target="_blank" rel="noreferrer">Pinterest <ArrowDownRight className="h-4 w-4" /></a>
               <a className="contact-paper" href="https://www.instagram.com/ornalya11" target="_blank" rel="noreferrer">Instagram <ArrowDownRight className="h-4 w-4" /></a>
               <a className="contact-paper" href="http://tiktok.com/@ornalya11" target="_blank" rel="noreferrer">TikTok <ArrowDownRight className="h-4 w-4" /></a>
@@ -141,6 +159,18 @@ export default function Home() {
           </div>
           <footer className="mx-auto mt-14 max-w-[1540px] border-t border-[#1d2547]/15 py-5 text-[9px] font-bold uppercase tracking-[0.16em] text-[#1d2547]/60">© AsylDreams. Сделано в движении.</footer>
         </section>
+
+        {activeWork && activeWorkIndex !== null && (
+          <div className="lightbox" role="dialog" aria-modal="true" aria-label={`Просмотр работы ${activeWork.title}`} onClick={() => setActiveWorkIndex(null)}>
+            <button type="button" className="lightbox-close" onClick={() => setActiveWorkIndex(null)} aria-label="Закрыть просмотр"><X className="h-5 w-5" /></button>
+            <button type="button" className="lightbox-nav is-left" onClick={(event) => { event.stopPropagation(); moveWork(-1); }} aria-label="Предыдущая работа"><ChevronLeft className="h-8 w-8" /></button>
+            <div className="lightbox-frame" onClick={(event) => event.stopPropagation()}>
+              <div className="lightbox-mat" style={{ backgroundColor: activeWork.color }}><img src={activeWork.image} alt={activeWork.title} /></div>
+              <div className="lightbox-meta"><div><p>{String(activeWorkIndex + 1).padStart(2, "0")} / 05 · Pinterest / Art</p><h3 className="juz-heading">{activeWork.title}</h3></div><a href={artBoardUrl} target="_blank" rel="noreferrer">Открыть на Pinterest <ArrowDownRight className="h-4 w-4" /></a></div>
+            </div>
+            <button type="button" className="lightbox-nav is-right" onClick={(event) => { event.stopPropagation(); moveWork(1); }} aria-label="Следующая работа"><ChevronRight className="h-8 w-8" /></button>
+          </div>
+        )}
       </main>
     </div>
   );
