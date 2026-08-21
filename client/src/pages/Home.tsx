@@ -1,6 +1,7 @@
-import { ArrowDownRight, ChevronLeft, ChevronRight, Filter, Play, Plus, Sparkles, Upload, X } from "lucide-react";
+import { ArrowDownRight, Check, ChevronLeft, ChevronRight, Filter, Moon, Play, Plus, Share2, Sparkles, Sun, Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, PointerEvent } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Moving Paper Gallery: light editorial collage where every Pinterest image keeps its native proportion and video remains tactile.
 const pinterestUrl = "https://www.pinterest.com/AsylDreams/";
@@ -33,6 +34,7 @@ const categories: { id: CategoryKey; label: string }[] = [
 ];
 
 export default function Home() {
+  const { theme, toggleTheme } = useTheme();
   const [activeLens, setActiveLens] = useState<LensKey>("milk");
   const [videoSources, setVideoSources] = useState<string[]>([defaultVideo]);
   const [videoIndex, setVideoIndex] = useState(0);
@@ -41,6 +43,8 @@ export default function Home() {
   const [galleryTransitioning, setGalleryTransitioning] = useState(false);
   const [cursor, setCursor] = useState({ x: -100, y: -100 });
   const [aboutPhoto, setAboutPhoto] = useState<string | null>(null);
+  const [photoTilt, setPhotoTilt] = useState({ x: 0, y: 0 });
+  const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
   const fileInput = useRef<HTMLInputElement>(null);
   const aboutInput = useRef<HTMLInputElement>(null);
   const aboutSection = useRef<HTMLElement>(null);
@@ -102,6 +106,28 @@ export default function Home() {
     window.setTimeout(() => setGalleryTransitioning(false), 360);
   }
 
+  function moveAboutPhoto(event: PointerEvent<HTMLDivElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * -8;
+    setPhotoTilt({ x, y });
+  }
+
+  async function sharePortfolio() {
+    const shareData = { title: "AsylDreams — Мои кадры", text: "Смотри портфолио AsylDreams", url: window.location.href };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+      await navigator.clipboard.writeText(window.location.href);
+      setShareStatus("copied");
+      window.setTimeout(() => setShareStatus("idle"), 2400);
+    } catch {
+      // Пользователь может закрыть системное окно; в этом случае интерфейс остаётся без ложного подтверждения.
+    }
+  }
+
   return (
     <div className="paper-site min-h-screen overflow-x-hidden text-[#1d2547]" onPointerMove={moveCursor}>
       <div className="paper-cursor" aria-hidden="true" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}><span /></div>
@@ -116,7 +142,12 @@ export default function Home() {
             <a href="#video">Видео</a>
             <a href="#contacts">Контакты</a>
           </nav>
-          <a className="pinterest-pill" href={pinterestUrl} target="_blank" rel="noreferrer">Pinterest <ArrowDownRight className="h-3.5 w-3.5" /></a>
+          <div className="paper-actions">
+            <button type="button" onClick={toggleTheme} className="theme-toggle" aria-label={theme === "light" ? "Включить тёмную тему" : "Включить светлую тему"}>
+              {theme === "light" ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}<span>{theme === "light" ? "Ночь" : "Свет"}</span>
+            </button>
+            <a className="pinterest-pill" href={pinterestUrl} target="_blank" rel="noreferrer">Pinterest <ArrowDownRight className="h-3.5 w-3.5" /></a>
+          </div>
         </div>
       </header>
 
@@ -211,7 +242,7 @@ export default function Home() {
 
         <section id="about" ref={aboutSection} className="about-paper px-4 py-16 sm:px-7 sm:py-24 lg:px-10">
           <div className="about-paper-inner mx-auto grid max-w-[1540px] gap-10 lg:grid-cols-[.74fr_1.26fr] lg:gap-16">
-            <div className="about-photo-wrap">
+            <div className="about-photo-wrap" onPointerMove={moveAboutPhoto} onPointerLeave={() => setPhotoTilt({ x: 0, y: 0 })} style={{ transform: `perspective(900px) rotateX(${photoTilt.y}deg) rotateY(${photoTilt.x}deg)` }}>
               {aboutPhoto ? <img src={aboutPhoto} alt="Фотография автора AsylDreams" className="about-photo" /> : <div className="about-photo-placeholder"><span>AS</span><p>Ваше<br />фото здесь</p></div>}
               <button type="button" className="about-upload" onClick={() => aboutInput.current?.click()}><Upload className="h-4 w-4" /> Добавить моё фото</button>
               <input ref={aboutInput} className="hidden" type="file" accept="image/*" onChange={chooseAboutPhoto} />
@@ -230,6 +261,7 @@ export default function Home() {
             <div className="flex flex-col justify-between gap-12">
               <div><p className="paper-kicker"><span /> AsylDreams / Moving Paper</p><h2 className="juz-heading mt-5 text-[clamp(3.2rem,6.5vw,7.5rem)] leading-[0.8] tracking-[-0.07em]">СМОТРИ<br />ДАЛЬШЕ.</h2></div>
               <a className="pinterest-portal" href={pinterestUrl} target="_blank" rel="noreferrer"><span className="portal-orbit"><span>P</span></span><span>Смотреть в Pinterest</span><ArrowDownRight className="h-6 w-6" /></a>
+              <button type="button" className="share-paper" onClick={sharePortfolio}>{shareStatus === "copied" ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}{shareStatus === "copied" ? "Ссылка скопирована" : "Поделиться"}</button>
             </div>
             <div className="contact-routes mt-10 lg:mt-0">
               <p className="contact-caption">Ещё кадры и настроение</p>

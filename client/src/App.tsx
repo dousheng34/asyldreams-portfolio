@@ -6,7 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
-// Moving Paper Gallery: application shell holds a bright editorial experience and light theme.
+// Moving Paper Gallery: application shell preserves the paper-gallery system in stored light and dark modes.
 
 function Router() {
   return (
@@ -29,7 +29,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider
         defaultTheme="light"
-        // switchable
+        switchable
       >
         <TooltipProvider>
           <Toaster />
