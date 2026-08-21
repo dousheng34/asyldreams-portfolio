@@ -1,6 +1,6 @@
-import { ArrowDownRight, ChevronLeft, ChevronRight, Play, Plus, Sparkles, X } from "lucide-react";
+import { ArrowDownRight, ChevronLeft, ChevronRight, Filter, Play, Plus, Sparkles, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, PointerEvent } from "react";
 
 // Moving Paper Gallery: light editorial collage where every Pinterest image keeps its native proportion and video remains tactile.
 const pinterestUrl = "https://www.pinterest.com/AsylDreams/";
@@ -8,11 +8,11 @@ const artBoardUrl = "https://www.pinterest.com/asyldreams/art/";
 const defaultVideo = "/manus-storage/asyldreams-moving-paper_7cfea5de.mp4";
 
 const artworks = [
-  { id: "01", title: "Облака", tag: "Pinterest / Art", mood: "тихий день", image: "/manus-storage/asyldreams-art-01_1b019e43.jpg", color: "#DDE9B8", size: "wide" },
-  { id: "02", title: "Розовый кадр", tag: "Pinterest / Art", mood: "персиковый свет", image: "/manus-storage/asyldreams-art-02_be1a2e8a.jpg", color: "#F5C9C0", size: "portrait" },
-  { id: "03", title: "Тень", tag: "Pinterest / Art", mood: "прохладный лист", image: "/manus-storage/asyldreams-art-03_6586bdc4.jpg", color: "#BFC5ED", size: "portrait" },
-  { id: "04", title: "Взгляд", tag: "Pinterest / Art", mood: "золотой край", image: "/manus-storage/asyldreams-art-04_8bb316da.jpg", color: "#FFD285", size: "portrait" },
-  { id: "05", title: "Свет", tag: "Pinterest / Art", mood: "молочное стекло", image: "/manus-storage/asyldreams-art-05_8e78876f.jpg", color: "#C8DED6", size: "wide" },
+  { id: "01", title: "Облака", tag: "Pinterest / Art", category: "landscape", mood: "тихий день", image: "/manus-storage/asyldreams-art-01_1b019e43.jpg", color: "#DDE9B8", size: "wide" },
+  { id: "02", title: "Розовый кадр", tag: "Pinterest / Art", category: "character", mood: "персиковый свет", image: "/manus-storage/asyldreams-art-02_be1a2e8a.jpg", color: "#F5C9C0", size: "portrait" },
+  { id: "03", title: "Тень", tag: "Pinterest / Art", category: "portrait", mood: "прохладный лист", image: "/manus-storage/asyldreams-art-03_6586bdc4.jpg", color: "#BFC5ED", size: "portrait" },
+  { id: "04", title: "Млечный путь", tag: "Pinterest / Space", category: "landscape", mood: "звёздный лист", image: "/manus-storage/asyldreams-space-01_117f4afe.jpg", color: "#D8C4B4", size: "portrait" },
+  { id: "05", title: "Свет", tag: "Pinterest / Art", category: "portrait", mood: "молочное стекло", image: "/manus-storage/asyldreams-art-05_8e78876f.jpg", color: "#C8DED6", size: "wide" },
 ];
 
 const lenses = {
@@ -23,15 +23,28 @@ const lenses = {
 } as const;
 
 type LensKey = keyof typeof lenses;
+type CategoryKey = "all" | "character" | "landscape" | "portrait";
+
+const categories: { id: CategoryKey; label: string }[] = [
+  { id: "all", label: "Все" },
+  { id: "character", label: "Персонажи" },
+  { id: "landscape", label: "Пейзажи" },
+  { id: "portrait", label: "Портреты" },
+];
 
 export default function Home() {
   const [activeLens, setActiveLens] = useState<LensKey>("milk");
   const [videoSources, setVideoSources] = useState<string[]>([defaultVideo]);
   const [videoIndex, setVideoIndex] = useState(0);
   const [activeWorkIndex, setActiveWorkIndex] = useState<number | null>(null);
+  const [activeCategory, setActiveCategory] = useState<CategoryKey>("all");
+  const [cursor, setCursor] = useState({ x: -100, y: -100 });
+  const [aboutPhoto, setAboutPhoto] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const aboutInput = useRef<HTMLInputElement>(null);
   const lens = lenses[activeLens];
   const activeWork = activeWorkIndex === null ? null : artworks[activeWorkIndex];
+  const visibleWorks = activeCategory === "all" ? artworks : artworks.filter((artwork) => artwork.category === activeCategory);
 
   function chooseVideo(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
@@ -48,8 +61,19 @@ export default function Home() {
     setActiveWorkIndex((index) => index === null ? 0 : (index + direction + artworks.length) % artworks.length);
   }
 
+  function moveCursor(event: PointerEvent<HTMLDivElement>) {
+    setCursor({ x: event.clientX, y: event.clientY });
+  }
+
+  function chooseAboutPhoto(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setAboutPhoto(URL.createObjectURL(file));
+  }
+
   return (
-    <div className="paper-site min-h-screen overflow-x-hidden text-[#1d2547]">
+    <div className="paper-site min-h-screen overflow-x-hidden text-[#1d2547]" onPointerMove={moveCursor}>
+      <div className="paper-cursor" aria-hidden="true" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}><span /></div>
       <header className="paper-nav px-4 py-4 sm:px-7 lg:px-10">
         <div className="mx-auto flex max-w-[1540px] items-center justify-between">
           <a href="#top" className="paper-wordmark" aria-label="AsylDreams — в начало">
@@ -81,8 +105,8 @@ export default function Home() {
             </div>
 
             <div id="video" className="video-panel relative flex min-h-[540px] flex-col justify-between overflow-hidden p-7 sm:p-10 lg:min-h-[680px] lg:p-14" style={{ backgroundColor: lens.color }}>
-              <div className="relative z-10 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em]">
-                <span>Motion / {String(videoIndex + 1).padStart(2, "0")}</span>
+              <div className="video-topline relative z-10 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em]">
+                <span>Видео / {String(videoIndex + 1).padStart(2, "0")}</span>
                 <span className="flex items-center gap-2"><Play className="h-3.5 w-3.5 fill-current" /> Движение</span>
               </div>
               <div className="video-orbit absolute left-1/2 top-1/2 aspect-square w-[min(83vw,430px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#1d2547]/20 p-3 sm:w-[min(52vw,480px)]">
@@ -94,7 +118,7 @@ export default function Home() {
                   <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,.46),transparent_34%)]" />
                 </div>
               </div>
-              <div className="relative z-10 mt-auto grid gap-5 border-t border-[#1d2547]/15 pt-5">
+              <div className="video-controls relative z-10 mt-auto grid gap-5 border-t border-[#1d2547]/15 pt-5">
                 <div className="flex flex-wrap gap-2" aria-label="Выберите фильтр видео">
                   {(Object.keys(lenses) as LensKey[]).map((key) => (
                     <button key={key} type="button" onClick={() => setActiveLens(key)} aria-pressed={activeLens === key} className={`lens-button ${activeLens === key ? "is-active" : ""}`}>{lenses[key].label}</button>
@@ -120,8 +144,14 @@ export default function Home() {
               <a href={artBoardUrl} target="_blank" rel="noreferrer" className="text-link">Открыть всю доску <ChevronRight className="h-4 w-4" /></a>
             </div>
 
+            <div className="gallery-filter-bar" aria-label="Фильтры работ">
+              <span className="filter-label"><Filter className="h-3.5 w-3.5" /> Смотреть</span>
+              {categories.map((category) => <button type="button" key={category.id} onClick={() => setActiveCategory(category.id)} className={`gallery-filter ${activeCategory === category.id ? "is-active" : ""}`}>{category.label}</button>)}
+            </div>
             <div className="art-layout">
-              {artworks.map((artwork, index) => (
+              {visibleWorks.map((artwork) => {
+                const index = artworks.findIndex((item) => item.id === artwork.id);
+                return (
                 <button key={artwork.id} type="button" className={`paper-work ${artwork.size}`} onClick={() => setActiveWorkIndex(index)} aria-label={`Открыть работу ${artwork.title}`}>
                   <div className="paper-mat" style={{ backgroundColor: artwork.color }}>
                     <span className="paper-tab">Лист {artwork.id} / {artwork.mood}</span>
@@ -132,7 +162,8 @@ export default function Home() {
                     <ArrowDownRight className="mt-2 h-4 w-4" />
                   </div>
                 </button>
-              ))}
+              );
+              })}
             </div>
           </div>
         </section>
@@ -141,6 +172,22 @@ export default function Home() {
           <div className="mx-auto grid max-w-[1540px] gap-10 lg:grid-cols-[.72fr_1.28fr]">
             <div className="sticker-note"><Sparkles className="h-7 w-7" /><span>New mood<br />every frame</span></div>
             <p className="juz-heading max-w-5xl text-[clamp(3rem,5.8vw,7.5rem)] leading-[0.81] tracking-[-0.065em]">КАДРЫ МОГУТ<br /><i className="text-[#F04A36]">МЕНЯТЬ СВЕТ.</i></p>
+          </div>
+        </section>
+
+        <section id="about" className="about-paper px-4 py-16 sm:px-7 sm:py-24 lg:px-10">
+          <div className="about-paper-inner mx-auto grid max-w-[1540px] gap-10 lg:grid-cols-[.74fr_1.26fr] lg:gap-16">
+            <div className="about-photo-wrap">
+              {aboutPhoto ? <img src={aboutPhoto} alt="Фотография автора AsylDreams" className="about-photo" /> : <div className="about-photo-placeholder"><span>AS</span><p>Ваше<br />фото здесь</p></div>}
+              <button type="button" className="about-upload" onClick={() => aboutInput.current?.click()}><Upload className="h-4 w-4" /> Добавить моё фото</button>
+              <input ref={aboutInput} className="hidden" type="file" accept="image/*" onChange={chooseAboutPhoto} />
+            </div>
+            <div className="about-copy">
+              <p className="paper-kicker"><span /> Обо мне / AsylDreams</p>
+              <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.8vw,7.2rem)] leading-[0.8] tracking-[-0.07em]">СОБИРАЮ<br />СНЫ В КАДР.</h2>
+              <p className="about-text">Я создаю AI-образы, где персонажи, цвет и атмосфера становятся отдельными историями. Мой Pinterest уже собрал 710 подписчиков и около 290K просмотров в месяц — и я продолжаю искать новые миры для каждой серии.</p>
+              <div className="about-stats"><span><b>710</b> подписчиков</span><span><b>290K</b> просмотров / месяц</span><span><b>∞</b> будущих миров</span></div>
+            </div>
           </div>
         </section>
 
