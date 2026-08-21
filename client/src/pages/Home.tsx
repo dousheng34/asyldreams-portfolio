@@ -1,29 +1,21 @@
-import { ArrowDownRight, Check, ChevronLeft, ChevronRight, FilePlus2, Filter, ImagePlus, Moon, Play, Plus, Send, Share2, Sparkles, Sun, Upload, X } from "lucide-react";
+import { ArrowDownRight, Check, ChevronLeft, ChevronRight, Filter, Moon, Pencil, Play, Send, Share2, Sparkles, Sun, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent, FormEvent, PointerEvent } from "react";
+import type { FormEvent, PointerEvent } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 // Moving Paper Gallery: light editorial collage where every Pinterest image keeps its native proportion and video remains tactile.
 const pinterestUrl = "https://www.pinterest.com/AsylDreams/";
 const artBoardUrl = "https://www.pinterest.com/asyldreams/art/";
-const defaultVideo = "/manus-storage/asyldreams-moving-paper_7cfea5de.mp4";
+const defaultVideo = "/manus-storage/asyldreams-public-motion_ab0647f3.mp4";
 
 const artworks = [
   { id: "01", title: "Облака", tag: "Pinterest / Art", category: "landscape", mood: "тихий день", image: "/manus-storage/asyldreams-art-01-1200_eca251cd.jpg", color: "#DDE9B8", size: "wide" },
   { id: "02", title: "Розовый кадр", tag: "Pinterest / Art", category: "character", mood: "персиковый свет", image: "/manus-storage/asyldreams-art-02_be1a2e8a.jpg", color: "#F5C9C0", size: "portrait" },
   { id: "03", title: "Тень", tag: "Pinterest / Art", category: "portrait", mood: "прохладный лист", image: "/manus-storage/asyldreams-art-03_6586bdc4.jpg", color: "#BFC5ED", size: "portrait" },
-  { id: "04", title: "Хаул", tag: "Pinterest / Ghibli", category: "character", mood: "розовый замок", image: "/manus-storage/asyldreams-howl-01_36b51619.jpg", color: "#F5C0C3", size: "square" },
+  { id: "04", title: "Хаул", tag: "Pinterest / Ghibli", category: "character", mood: "небесный ветер", image: "/manus-storage/asyldreams-leaf04-howl_12a01b41.jpg", color: "#BFD4EF", size: "portrait" },
   { id: "05", title: "Свет", tag: "Pinterest / Art", category: "portrait", mood: "молочное стекло", image: "/manus-storage/asyldreams-art-05_8e78876f.jpg", color: "#C8DED6", size: "wide" },
 ];
 
-const lenses = {
-  milk: { label: "Молоко", filter: "brightness(1.12) saturate(0.75) contrast(0.92)", color: "#FAF3E8" },
-  peach: { label: "Персик", filter: "sepia(0.23) saturate(1.12) hue-rotate(336deg) brightness(1.07)", color: "#FFC1B1" },
-  silver: { label: "Серебро", filter: "grayscale(0.78) contrast(1.18) brightness(1.05)", color: "#BFC9D3" },
-  aqua: { label: "Синее стекло", filter: "sepia(0.13) saturate(1.3) hue-rotate(150deg) brightness(1.05)", color: "#B9E6E6" },
-} as const;
-
-type LensKey = keyof typeof lenses;
 type CategoryKey = "all" | "character" | "landscape" | "portrait";
 
 const categories: { id: CategoryKey; label: string }[] = [
@@ -35,44 +27,30 @@ const categories: { id: CategoryKey; label: string }[] = [
 
 type NewPin = { id: string; title: string; image: string; source: string };
 
+const initialNewPins: NewPin[] = [
+  { id: "fresh-01", title: "Хаул", image: "/manus-storage/asyldreams-leaf04-howl_12a01b41.jpg", source: artBoardUrl },
+  { id: "fresh-02", title: "Розовый кадр", image: "/manus-storage/asyldreams-art-02_be1a2e8a.jpg", source: artBoardUrl },
+  { id: "fresh-03", title: "Облака", image: "/manus-storage/asyldreams-art-01-1200_eca251cd.jpg", source: artBoardUrl },
+];
+
 export default function Home() {
   const { theme, toggleTheme } = useTheme();
   const [loaderPhase, setLoaderPhase] = useState<"visible" | "leaving" | "hidden">("visible");
-  const [activeLens, setActiveLens] = useState<LensKey>("milk");
-  const [videoSources, setVideoSources] = useState<string[]>([defaultVideo]);
-  const [videoIndex, setVideoIndex] = useState(0);
   const [activeWorkIndex, setActiveWorkIndex] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<CategoryKey>("all");
   const [galleryTransitioning, setGalleryTransitioning] = useState(false);
   const [cursor, setCursor] = useState({ x: -100, y: -100 });
-  const [aboutPhoto, setAboutPhoto] = useState<string | null>(null);
   const [photoTilt, setPhotoTilt] = useState({ x: 0, y: 0 });
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
-  const [newPins, setNewPins] = useState<NewPin[]>([]);
-  const [draftPinImage, setDraftPinImage] = useState<string | null>(null);
-  const [draftPinTitle, setDraftPinTitle] = useState("");
-  const [draftPinSource, setDraftPinSource] = useState("");
-  const [pinStatus, setPinStatus] = useState<"idle" | "ready" | "error">("idle");
+  const [newPins, setNewPins] = useState<NewPin[]>(initialNewPins);
+  const [editingPinId, setEditingPinId] = useState<string | null>(null);
+  const [editPinTitle, setEditPinTitle] = useState("");
+  const [editPinSource, setEditPinSource] = useState("");
   const [orderStatus, setOrderStatus] = useState<"idle" | "copied" | "ready">("idle");
-  const fileInput = useRef<HTMLInputElement>(null);
-  const aboutInput = useRef<HTMLInputElement>(null);
-  const newPinInput = useRef<HTMLInputElement>(null);
   const aboutSection = useRef<HTMLElement>(null);
   const [aboutVisible, setAboutVisible] = useState(false);
-  const lens = lenses[activeLens];
   const activeWork = activeWorkIndex === null ? null : artworks[activeWorkIndex];
   const visibleWorks = activeCategory === "all" ? artworks : artworks.filter((artwork) => artwork.category === activeCategory);
-
-  function chooseVideo(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []);
-    if (!files.length) return;
-    setVideoSources(files.map((file) => URL.createObjectURL(file)));
-    setVideoIndex(0);
-  }
-
-  function moveVideo(direction: number) {
-    setVideoIndex((index) => (index + direction + videoSources.length) % videoSources.length);
-  }
 
   function moveWork(direction: number) {
     setActiveWorkIndex((index) => index === null ? 0 : (index + direction + artworks.length) % artworks.length);
@@ -90,14 +68,6 @@ export default function Home() {
       window.clearTimeout(removeLoader);
     };
   }, []);
-
-  useEffect(() => {
-    if (videoSources.length < 2) return;
-    const autoAdvance = window.setInterval(() => {
-      setVideoIndex((index) => (index + 1) % videoSources.length);
-    }, 5500);
-    return () => window.clearInterval(autoAdvance);
-  }, [videoSources.length]);
 
   useEffect(() => {
     const section = aboutSection.current;
@@ -123,12 +93,6 @@ export default function Home() {
 
   function moveCursor(event: PointerEvent<HTMLDivElement>) {
     setCursor({ x: event.clientX, y: event.clientY });
-  }
-
-  function chooseAboutPhoto(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setAboutPhoto(URL.createObjectURL(file));
   }
 
   function selectCategory(category: CategoryKey) {
@@ -160,34 +124,26 @@ export default function Home() {
     }
   }
 
-  function chooseNewPinImage(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (file.size > 1_500_000) {
-      setPinStatus("error");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setDraftPinImage(String(reader.result));
-      setPinStatus("idle");
-    };
-    reader.readAsDataURL(file);
+  function persistPins(nextPins: NewPin[]) {
+    setNewPins(nextPins);
+    try { window.localStorage.setItem("asyldreams-new-pins", JSON.stringify(nextPins)); } catch { /* Изменения остаются в текущей сессии. */ }
   }
 
-  function addNewPin() {
-    if (!draftPinImage) {
-      setPinStatus("error");
-      return;
-    }
-    const nextPins = [{ id: String(Date.now()), title: draftPinTitle.trim() || "Новый пин", image: draftPinImage, source: draftPinSource.trim() }, ...newPins].slice(0, 3);
-    setNewPins(nextPins);
-    try { window.localStorage.setItem("asyldreams-new-pins", JSON.stringify(nextPins)); } catch { /* Данные остаются в текущей сессии. */ }
-    setDraftPinImage(null);
-    setDraftPinTitle("");
-    setDraftPinSource("");
-    if (newPinInput.current) newPinInput.current.value = "";
-    setPinStatus("ready");
+  function startPinEdit(pin: NewPin) {
+    setEditingPinId(pin.id);
+    setEditPinTitle(pin.title);
+    setEditPinSource(pin.source);
+  }
+
+  function savePinEdit() {
+    if (!editingPinId) return;
+    persistPins(newPins.map((pin) => pin.id === editingPinId ? { ...pin, title: editPinTitle.trim() || pin.title, source: editPinSource.trim() || pin.source } : pin));
+    setEditingPinId(null);
+  }
+
+  function deletePin(id: string) {
+    persistPins(newPins.filter((pin) => pin.id !== id));
+    if (editingPinId === id) setEditingPinId(null);
   }
 
   async function prepareOrder(event: FormEvent<HTMLFormElement>) {
@@ -250,34 +206,20 @@ export default function Home() {
               </div>
             </div>
 
-            <div id="video" className="video-panel relative flex min-h-[540px] flex-col justify-between overflow-hidden p-7 sm:p-10 lg:min-h-[680px] lg:p-14" style={{ backgroundColor: lens.color }}>
+            <div id="video" className="video-panel public-video relative flex min-h-[540px] flex-col justify-between overflow-hidden p-7 sm:p-10 lg:min-h-[680px] lg:p-14">
               <div className="video-topline relative z-10 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em]">
-                <span>Видео / {String(videoIndex + 1).padStart(2, "0")}</span>
-                <span className="flex items-center gap-2"><Play className="h-3.5 w-3.5 fill-current" /> Движение</span>
+                <span>Видео / AsylDreams</span>
+                <span className="flex items-center gap-2"><Play className="h-3.5 w-3.5 fill-current" /> Готовая работа</span>
               </div>
               <div className="video-orbit absolute left-1/2 top-1/2 aspect-square w-[min(83vw,430px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#1d2547]/20 p-3 sm:w-[min(52vw,480px)]">
-                <span className="lens-note">Линза 01<br />меняет цвет</span>
-                {videoSources.length > 1 && <div className="video-side-arrows" aria-label="Листать видео"><button type="button" onClick={() => moveVideo(-1)} aria-label="Предыдущее видео"><ChevronLeft className="h-5 w-5" /></button><button type="button" onClick={() => moveVideo(1)} aria-label="Следующее видео"><ChevronRight className="h-5 w-5" /></button></div>}
                 <div className="relative h-full w-full overflow-hidden rounded-full border-4 border-[#FAF3E8] bg-[#B9E6E6] shadow-[14px_18px_0_rgba(29,37,71,0.16)]">
-                  <video key={videoSources[videoIndex]} autoPlay muted loop playsInline className="h-full w-full object-cover transition-[filter] duration-500" style={{ filter: lens.filter }}>
-                    <source src={videoSources[videoIndex]} type="video/mp4" />
+                  <video autoPlay muted loop playsInline className="h-full w-full object-cover">
+                    <source src={defaultVideo} type="video/mp4" />
                   </video>
                   <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,.46),transparent_34%)]" />
                 </div>
               </div>
-              <div className="video-controls relative z-10 mt-auto grid gap-5 border-t border-[#1d2547]/15 pt-5">
-                <p className="lens-control-label">Настроение линзы / меняет цвет кадра</p>
-                <div className="flex flex-wrap gap-2" aria-label="Выберите фильтр видео">
-                  {(Object.keys(lenses) as LensKey[]).map((key) => (
-                    <button key={key} type="button" onClick={() => setActiveLens(key)} aria-pressed={activeLens === key} className={`lens-button ${activeLens === key ? "is-active" : ""}`}>{lenses[key].label}</button>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <button type="button" className="upload-video" onClick={() => fileInput.current?.click()}><Plus className="h-4 w-4" /> Добавить мои видео</button>
-                  {videoSources.length > 1 && <span className="video-autoplay" aria-live="polite">Авто · {videoIndex + 1} / {videoSources.length}</span>}
-                </div>
-                <input ref={fileInput} className="hidden" type="file" accept="video/*" multiple onChange={chooseVideo} />
-              </div>
+              <p className="video-caption relative z-10 mt-auto border-t border-[#1d2547]/15 pt-5">Кадр из авторской серии AsylDreams.</p>
             </div>
           </div>
         </section>
@@ -322,21 +264,12 @@ export default function Home() {
             <div>
               <p className="paper-kicker"><span /> Pinterest / Fresh sheet</p>
               <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.6vw,6.6rem)] leading-[0.78] tracking-[-0.07em]">НОВЫЕ<br />ПИНЫ.</h2>
-              <p className="new-pins-intro">Добавляйте до трёх свежих кадров. Они сохраняются в этом браузере, чтобы быстро обновлять витрину без правки кода.</p>
+              <p className="new-pins-intro">Свежая подборка готовых работ. Для владельца доступны короткое редактирование названия и ссылки, а также удаление карточки.</p>
               <div className="new-pins-grid mt-8">
-                {newPins.length ? newPins.map((pin) => <a key={pin.id} href={pin.source || pinterestUrl} target="_blank" rel="noreferrer" className="new-pin-card"><img src={pin.image} alt={pin.title} /><span>{pin.title}</span></a>) : <div className="new-pins-empty"><Sparkles className="h-5 w-5" /><p>Здесь появятся<br />ваши свежие пины.</p></div>}
+                {newPins.length ? newPins.map((pin) => <article key={pin.id} className="new-pin-card"><a href={pin.source || pinterestUrl} target="_blank" rel="noreferrer"><img src={pin.image} alt={pin.title} /><span>{pin.title}</span></a>{editingPinId === pin.id ? <div className="pin-inline-editor"><input value={editPinTitle} onChange={(event) => setEditPinTitle(event.target.value)} aria-label="Название пина" /><input value={editPinSource} onChange={(event) => setEditPinSource(event.target.value)} aria-label="Ссылка пина" /><button type="button" onClick={savePinEdit}>Сохранить</button><button type="button" onClick={() => setEditingPinId(null)}>Отмена</button></div> : <div className="pin-card-actions"><button type="button" onClick={() => startPinEdit(pin)} aria-label={`Редактировать ${pin.title}`}><Pencil className="h-3.5 w-3.5" /></button><button type="button" onClick={() => deletePin(pin.id)} aria-label={`Удалить ${pin.title}`}><Trash2 className="h-3.5 w-3.5" /></button></div>}</article>) : <div className="new-pins-empty"><Sparkles className="h-5 w-5" /><p>Витрина пока<br />без новых работ.</p></div>}
               </div>
             </div>
-            <div className="pin-composer mt-10 lg:mt-0">
-              <p className="composer-index">Лист обновления / 01</p>
-              <div className={`pin-preview ${draftPinImage ? "has-image" : ""}`} onClick={() => newPinInput.current?.click()}>{draftPinImage ? <img src={draftPinImage} alt="Предпросмотр нового пина" /> : <><ImagePlus className="h-7 w-7" /><span>Выбрать изображение</span></>}</div>
-              <input ref={newPinInput} className="hidden" type="file" accept="image/*" onChange={chooseNewPinImage} />
-              <label className="paper-field"><span>Название</span><input value={draftPinTitle} onChange={(event) => setDraftPinTitle(event.target.value)} placeholder="Например: лунный кадр" /></label>
-              <label className="paper-field"><span>Ссылка на Pinterest</span><input value={draftPinSource} onChange={(event) => setDraftPinSource(event.target.value)} type="url" placeholder="https://pinterest.com/..." /></label>
-              <button type="button" className="pin-add-button" onClick={addNewPin}><FilePlus2 className="h-4 w-4" /> Добавить на лист</button>
-              {pinStatus === "error" && <p className="form-status is-error">Выберите изображение до 1,5 МБ.</p>}
-              {pinStatus === "ready" && <p className="form-status"><Check className="h-4 w-4" /> Новый пин добавлен в эту витрину.</p>}
-            </div>
+            <aside className="fresh-pins-note mt-10 lg:mt-0"><span className="portal-mark" aria-hidden="true"><span /></span><p>ВИТРИНА<br />ГОТОВЫХ<br />РАБОТ.</p><small>Фото и видео добавляются только при подготовке сайта, а не посетителями.</small></aside>
           </div>
         </section>
 
@@ -350,9 +283,7 @@ export default function Home() {
         <section id="about" ref={aboutSection} className="about-paper px-4 py-16 sm:px-7 sm:py-24 lg:px-10">
           <div className="about-paper-inner mx-auto grid max-w-[1540px] gap-10 lg:grid-cols-[.74fr_1.26fr] lg:gap-16">
             <div className="about-photo-wrap" onPointerMove={moveAboutPhoto} onPointerLeave={() => setPhotoTilt({ x: 0, y: 0 })} style={{ transform: `perspective(900px) rotateX(${photoTilt.y}deg) rotateY(${photoTilt.x}deg)` }}>
-              {aboutPhoto ? <img src={aboutPhoto} alt="Фотография автора AsylDreams" className="about-photo" /> : <div className="about-photo-placeholder"><span>AS</span><p>Ваше<br />фото здесь</p></div>}
-              <button type="button" className="about-upload" onClick={() => aboutInput.current?.click()}><Upload className="h-4 w-4" /> Добавить моё фото</button>
-              <input ref={aboutInput} className="hidden" type="file" accept="image/*" onChange={chooseAboutPhoto} />
+              <img src="/manus-storage/asyldreams-about-character_5420337c.png" alt="Персонаж AsylDreams" className="about-photo" />
             </div>
             <div className={`about-copy ${aboutVisible ? "is-visible" : ""}`}>
               <p className="paper-kicker"><span /> Обо мне / AsylDreams</p>
