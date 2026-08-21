@@ -161,6 +161,37 @@
 .work-index { font-family: "JUZ", serif; font-size: 11px; letter-spacing: .035em; text-transform: uppercase; color: rgba(29,37,71,.68); }
 .note-paper { background: #b9e5e5; }
 .sticker-note { display: inline-flex; width: max-content; align-items: center; gap: 0.7rem; background: #f04a36; color: #fff8ed; padding: 0.9rem 1rem; font-family: "JUZ", serif; font-size: 1.25rem; line-height: 0.85; letter-spacing: -0.04em; box-shadow: 6px 6px 0 #1d2547; transform: rotate(-4deg); }
+.new-pins-paper { background: #bfd4ef; }
+.new-pins-inner { position: relative; background: #ffd385; box-shadow: 10px 10px 0 #1d2547; }
+.new-pins-inner::after { content: "FRESH PINS / 03"; position: absolute; top: 1rem; right: 1.2rem; border: 1px solid rgba(29,37,71,.36); background: #f7f0e4; padding: .35rem .45rem; font-size: 8px; font-weight: 800; letter-spacing: .12em; transform: rotate(2deg); }
+.new-pins-intro, .order-intro { max-width: 31rem; margin-top: 1.65rem; font-size: 1rem; line-height: 1.55; color: rgba(29,37,71,.74); }
+.new-pins-grid { display: grid; min-height: 180px; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
+.new-pin-card { display: block; min-width: 0; background: #f7f0e4; box-shadow: 3px 3px 0 #1d2547; transition: transform 180ms cubic-bezier(.23,1,.32,1), box-shadow 180ms cubic-bezier(.23,1,.32,1); }
+.new-pin-card:hover { transform: translateY(-4px) rotate(-1deg); box-shadow: 7px 7px 0 #f04a36; }
+.new-pin-card img { display: block; width: 100%; aspect-ratio: 1 / 1.15; object-fit: cover; }
+.new-pin-card span { display: block; overflow: hidden; padding: .45rem; font-family: "JUZ", serif; font-size: .9rem; letter-spacing: -.02em; text-overflow: ellipsis; white-space: nowrap; }
+.new-pins-empty { grid-column: 1 / -1; display: flex; min-height: 180px; align-items: center; justify-content: center; gap: .75rem; border: 1px dashed rgba(29,37,71,.45); background: rgba(247,240,228,.45); text-align: center; }
+.new-pins-empty p { font-family: "JUZ", serif; font-size: 1.25rem; line-height: .8; letter-spacing: -.04em; }
+.pin-composer { position: relative; background: #f7f0e4; padding: clamp(1rem,2vw,1.5rem); box-shadow: 6px 6px 0 #1d2547; }
+.composer-index { margin-bottom: 1rem; font-size: 9px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.pin-preview { display: grid; min-height: 168px; place-items: center; gap: .55rem; border: 1px dashed rgba(29,37,71,.48); background: #c7e2d9; color: #1d2547; text-align: center; transition: background 180ms cubic-bezier(.23,1,.32,1), transform 180ms cubic-bezier(.23,1,.32,1); }
+.pin-preview:hover { background: #b9e5e5; transform: translateY(-2px); }
+.pin-preview.has-image { display: block; border-style: solid; background: #f5c9c0; padding: .5rem; }
+.pin-preview img { display: block; width: 100%; max-height: 220px; object-fit: contain; }
+.pin-preview span { font-family: "JUZ", serif; font-size: 1.1rem; }
+.paper-field { display: grid; gap: .38rem; margin-top: .85rem; }
+.paper-field > span { font-size: 9px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.paper-field input, .paper-field textarea, .paper-field select { width: 100%; border: 1px solid rgba(29,37,71,.56); background: #f7f0e4; padding: .62rem .68rem; color: #1d2547; font: 500 .9rem/1.4 "Manrope", sans-serif; outline: none; transition: box-shadow 180ms cubic-bezier(.23,1,.32,1), border-color 180ms cubic-bezier(.23,1,.32,1); }
+.paper-field textarea { resize: vertical; }
+.paper-field input:focus, .paper-field textarea:focus, .paper-field select:focus { border-color: #f04a36; box-shadow: 3px 3px 0 #b9e5e5; }
+.pin-add-button, .order-submit { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1rem; background: #1d2547; color: #fff8ed; padding: .67rem .8rem; font-family: "JUZ", serif; font-size: 1rem; letter-spacing: .01em; box-shadow: 4px 4px 0 #f04a36; transition: transform 180ms cubic-bezier(.23,1,.32,1), box-shadow 180ms cubic-bezier(.23,1,.32,1); }
+.pin-add-button:hover, .order-submit:hover { transform: translate(-2px,-2px) rotate(-1deg); box-shadow: 7px 7px 0 #f04a36; }
+.form-status { display: flex; align-items: center; gap: .4rem; margin-top: .9rem; font-size: .78rem; font-weight: 700; color: #1d2547; }
+.form-status.is-error { color: #b42318; }
+.order-paper { background: #f7f0e4; }
+.order-paper-inner { position: relative; background: #c7e2d9; box-shadow: 10px 10px 0 #1d2547; }
+.order-paper-inner::after { content: "COMMISSION / 04"; position: absolute; top: 1rem; right: 1.2rem; border: 1px solid rgba(29,37,71,.36); background: #f7f0e4; padding: .35rem .45rem; font-size: 8px; font-weight: 800; letter-spacing: .12em; transform: rotate(-2deg); }
+.order-form { background: #f7f0e4; padding: clamp(1rem,2vw,1.5rem); box-shadow: 6px 6px 0 #1d2547; }
 .contacts-paper { background: #ffd385; }
 .about-paper { background: #f7f0e4; }
 .about-paper-inner { position: relative; background: #f5c9c0; box-shadow: 10px 10px 0 #1d2547; padding: clamp(1.25rem, 3.2vw, 3.5rem); }
@@ -212,6 +243,9 @@
 .lightbox-nav:hover { background: #f7f0e4; color: #1d2547; }
 
 .dark .paper-site, .dark .paper-nav, .dark .works-paper, .dark .about-paper { background: #121a31; color: #f7f0e4; }
+.dark .new-pins-paper, .dark .order-paper { background: #121a31; }
+.dark .new-pins-inner { box-shadow: 10px 10px 0 #f04a36; }
+.dark .new-pins-inner::after, .dark .order-paper-inner::after { background: #121a31; color: #f7f0e4; border-color: rgba(247,240,228,.35); }
 .dark .paper-loader { background: #121a31; color: #f7f0e4; }
 .dark .paper-loader::before, .dark .paper-loader::after { border-color: rgba(247,240,228,.16); }
 .dark .loader-sheet { background: #28434a; border-color: #f7f0e4; box-shadow: 10px 10px 0 #f04a36; }
@@ -256,6 +290,8 @@
   .contact-paper { min-width: min(100%, 16rem); }
   .contact-routes { border-left: 0; border-top: 1px solid rgba(29,37,71,.24); padding-left: 0; padding-top: 1.5rem; }
   .about-paper-inner { padding-bottom: 2.8rem; }
+  .new-pins-grid { min-height: 145px; }
+  .new-pins-empty { min-height: 145px; }
   .lightbox { grid-template-columns: 2.7rem minmax(0,1fr) 2.7rem; gap: .35rem; padding: .65rem; }
   .lightbox-nav { width: 2.5rem; height: 3.5rem; }
   .lightbox-nav svg { width: 1.5rem; }
