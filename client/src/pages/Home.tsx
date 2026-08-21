@@ -35,6 +35,7 @@ const categories: { id: CategoryKey; label: string }[] = [
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme();
+  const [loaderPhase, setLoaderPhase] = useState<"visible" | "leaving" | "hidden">("visible");
   const [activeLens, setActiveLens] = useState<LensKey>("milk");
   const [videoSources, setVideoSources] = useState<string[]>([defaultVideo]);
   const [videoIndex, setVideoIndex] = useState(0);
@@ -67,6 +68,19 @@ export default function Home() {
   function moveWork(direction: number) {
     setActiveWorkIndex((index) => index === null ? 0 : (index + direction + artworks.length) % artworks.length);
   }
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setLoaderPhase("hidden");
+      return;
+    }
+    const beginExit = window.setTimeout(() => setLoaderPhase("leaving"), 920);
+    const removeLoader = window.setTimeout(() => setLoaderPhase("hidden"), 1460);
+    return () => {
+      window.clearTimeout(beginExit);
+      window.clearTimeout(removeLoader);
+    };
+  }, []);
 
   useEffect(() => {
     if (videoSources.length < 2) return;
@@ -130,6 +144,14 @@ export default function Home() {
 
   return (
     <div className="paper-site min-h-screen overflow-x-hidden text-[#1d2547]" onPointerMove={moveCursor}>
+      {loaderPhase !== "hidden" && <div className={`paper-loader ${loaderPhase === "leaving" ? "is-leaving" : ""}`} role="status" aria-label="Загружается портфолио AsylDreams">
+        <div className="loader-sheet">
+          <p className="loader-index">ASYLDREAMS / ПЕРВЫЙ КАДР</p>
+          <div className="loader-portal" aria-hidden="true"><span className="loader-lens" /><span className="loader-dot" /></div>
+          <p className="loader-title">ОТКРЫВАЕМ<br />СНЫ<span>.</span></p>
+          <div className="loader-progress"><span /><i>01 / 01</i></div>
+        </div>
+      </div>}
       <div className="paper-cursor" aria-hidden="true" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}><span /></div>
       <header className="paper-nav px-4 py-4 sm:px-7 lg:px-10">
         <div className="mx-auto flex max-w-[1540px] items-center justify-between">
