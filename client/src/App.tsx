@@ -6,7 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
-// Dream Archive: application shell preserves a deep obsidian exhibition atmosphere.
+// Moving Paper Gallery: application shell holds a bright editorial experience and light theme.
 
 function Router() {
   return (
@@ -28,7 +28,7 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider
-        defaultTheme="dark"
+        defaultTheme="light"
         // switchable
       >
         <TooltipProvider>
