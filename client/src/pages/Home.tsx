@@ -1,5 +1,5 @@
 import { ArrowDownRight, ChevronLeft, ChevronRight, Filter, Play, Plus, Sparkles, Upload, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, PointerEvent } from "react";
 
 // Moving Paper Gallery: light editorial collage where every Pinterest image keeps its native proportion and video remains tactile.
@@ -8,10 +8,10 @@ const artBoardUrl = "https://www.pinterest.com/asyldreams/art/";
 const defaultVideo = "/manus-storage/asyldreams-moving-paper_7cfea5de.mp4";
 
 const artworks = [
-  { id: "01", title: "Облака", tag: "Pinterest / Art", category: "landscape", mood: "тихий день", image: "/manus-storage/asyldreams-art-01_1b019e43.jpg", color: "#DDE9B8", size: "wide" },
+  { id: "01", title: "Облака", tag: "Pinterest / Art", category: "landscape", mood: "тихий день", image: "/manus-storage/asyldreams-art-01-1200_eca251cd.jpg", color: "#DDE9B8", size: "wide" },
   { id: "02", title: "Розовый кадр", tag: "Pinterest / Art", category: "character", mood: "персиковый свет", image: "/manus-storage/asyldreams-art-02_be1a2e8a.jpg", color: "#F5C9C0", size: "portrait" },
   { id: "03", title: "Тень", tag: "Pinterest / Art", category: "portrait", mood: "прохладный лист", image: "/manus-storage/asyldreams-art-03_6586bdc4.jpg", color: "#BFC5ED", size: "portrait" },
-  { id: "04", title: "Млечный путь", tag: "Pinterest / Space", category: "landscape", mood: "звёздный лист", image: "/manus-storage/asyldreams-space-01_117f4afe.jpg", color: "#D8C4B4", size: "portrait" },
+  { id: "04", title: "Хаул", tag: "Pinterest / Ghibli", category: "character", mood: "розовый замок", image: "/manus-storage/asyldreams-howl-01_36b51619.jpg", color: "#F5C0C3", size: "square" },
   { id: "05", title: "Свет", tag: "Pinterest / Art", category: "portrait", mood: "молочное стекло", image: "/manus-storage/asyldreams-art-05_8e78876f.jpg", color: "#C8DED6", size: "wide" },
 ];
 
@@ -38,10 +38,13 @@ export default function Home() {
   const [videoIndex, setVideoIndex] = useState(0);
   const [activeWorkIndex, setActiveWorkIndex] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<CategoryKey>("all");
+  const [galleryTransitioning, setGalleryTransitioning] = useState(false);
   const [cursor, setCursor] = useState({ x: -100, y: -100 });
   const [aboutPhoto, setAboutPhoto] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const aboutInput = useRef<HTMLInputElement>(null);
+  const aboutSection = useRef<HTMLElement>(null);
+  const [aboutVisible, setAboutVisible] = useState(false);
   const lens = lenses[activeLens];
   const activeWork = activeWorkIndex === null ? null : artworks[activeWorkIndex];
   const visibleWorks = activeCategory === "all" ? artworks : artworks.filter((artwork) => artwork.category === activeCategory);
@@ -61,6 +64,27 @@ export default function Home() {
     setActiveWorkIndex((index) => index === null ? 0 : (index + direction + artworks.length) % artworks.length);
   }
 
+  useEffect(() => {
+    if (videoSources.length < 2) return;
+    const autoAdvance = window.setInterval(() => {
+      setVideoIndex((index) => (index + 1) % videoSources.length);
+    }, 5500);
+    return () => window.clearInterval(autoAdvance);
+  }, [videoSources.length]);
+
+  useEffect(() => {
+    const section = aboutSection.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setAboutVisible(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.2 });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   function moveCursor(event: PointerEvent<HTMLDivElement>) {
     setCursor({ x: event.clientX, y: event.clientY });
   }
@@ -69,6 +93,13 @@ export default function Home() {
     const file = event.target.files?.[0];
     if (!file) return;
     setAboutPhoto(URL.createObjectURL(file));
+  }
+
+  function selectCategory(category: CategoryKey) {
+    if (category === activeCategory) return;
+    setActiveCategory(category);
+    setGalleryTransitioning(true);
+    window.setTimeout(() => setGalleryTransitioning(false), 360);
   }
 
   return (
@@ -111,6 +142,7 @@ export default function Home() {
               </div>
               <div className="video-orbit absolute left-1/2 top-1/2 aspect-square w-[min(83vw,430px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#1d2547]/20 p-3 sm:w-[min(52vw,480px)]">
                 <span className="lens-note">Линза 01<br />меняет цвет</span>
+                {videoSources.length > 1 && <div className="video-side-arrows" aria-label="Листать видео"><button type="button" onClick={() => moveVideo(-1)} aria-label="Предыдущее видео"><ChevronLeft className="h-5 w-5" /></button><button type="button" onClick={() => moveVideo(1)} aria-label="Следующее видео"><ChevronRight className="h-5 w-5" /></button></div>}
                 <div className="relative h-full w-full overflow-hidden rounded-full border-4 border-[#FAF3E8] bg-[#B9E6E6] shadow-[14px_18px_0_rgba(29,37,71,0.16)]">
                   <video key={videoSources[videoIndex]} autoPlay muted loop playsInline className="h-full w-full object-cover transition-[filter] duration-500" style={{ filter: lens.filter }}>
                     <source src={videoSources[videoIndex]} type="video/mp4" />
@@ -119,6 +151,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="video-controls relative z-10 mt-auto grid gap-5 border-t border-[#1d2547]/15 pt-5">
+                <p className="lens-control-label">Настроение линзы / меняет цвет кадра</p>
                 <div className="flex flex-wrap gap-2" aria-label="Выберите фильтр видео">
                   {(Object.keys(lenses) as LensKey[]).map((key) => (
                     <button key={key} type="button" onClick={() => setActiveLens(key)} aria-pressed={activeLens === key} className={`lens-button ${activeLens === key ? "is-active" : ""}`}>{lenses[key].label}</button>
@@ -126,7 +159,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <button type="button" className="upload-video" onClick={() => fileInput.current?.click()}><Plus className="h-4 w-4" /> Добавить мои видео</button>
-                  {videoSources.length > 1 && <div className="video-carousel" aria-label="Листать видео"><button type="button" onClick={() => moveVideo(-1)} aria-label="Предыдущее видео"><ChevronLeft className="h-4 w-4" /></button><span>{videoIndex + 1} / {videoSources.length}</span><button type="button" onClick={() => moveVideo(1)} aria-label="Следующее видео"><ChevronRight className="h-4 w-4" /></button></div>}
+                  {videoSources.length > 1 && <span className="video-autoplay" aria-live="polite">Авто · {videoIndex + 1} / {videoSources.length}</span>}
                 </div>
                 <input ref={fileInput} className="hidden" type="file" accept="video/*" multiple onChange={chooseVideo} />
               </div>
@@ -146,16 +179,17 @@ export default function Home() {
 
             <div className="gallery-filter-bar" aria-label="Фильтры работ">
               <span className="filter-label"><Filter className="h-3.5 w-3.5" /> Смотреть</span>
-              {categories.map((category) => <button type="button" key={category.id} onClick={() => setActiveCategory(category.id)} className={`gallery-filter ${activeCategory === category.id ? "is-active" : ""}`}>{category.label}</button>)}
+              {categories.map((category) => <button type="button" key={category.id} onClick={() => selectCategory(category.id)} className={`gallery-filter ${activeCategory === category.id ? "is-active" : ""}`}>{category.label}</button>)}
+              <span className="selected-pins-note">Выбранные пины AsylDreams</span>
             </div>
-            <div className="art-layout">
+            <div className={`art-layout ${galleryTransitioning ? "is-transitioning" : ""}`}>
               {visibleWorks.map((artwork) => {
                 const index = artworks.findIndex((item) => item.id === artwork.id);
                 return (
                 <button key={artwork.id} type="button" className={`paper-work ${artwork.size}`} onClick={() => setActiveWorkIndex(index)} aria-label={`Открыть работу ${artwork.title}`}>
                   <div className="paper-mat" style={{ backgroundColor: artwork.color }}>
                     <span className="paper-tab">Лист {artwork.id} / {artwork.mood}</span>
-                    <img src={artwork.image} alt={artwork.title} className="work-image" />
+                    <img src={artwork.image} alt={artwork.title} className="work-image" decoding="async" />
                   </div>
                   <div className="mt-3 flex items-start justify-between gap-4">
                     <div><p className="work-index">{artwork.id} / {artwork.tag}</p><h3 className="juz-heading mt-1 text-3xl tracking-[-0.045em]">{artwork.title}</h3></div>
@@ -175,14 +209,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="about" className="about-paper px-4 py-16 sm:px-7 sm:py-24 lg:px-10">
+        <section id="about" ref={aboutSection} className="about-paper px-4 py-16 sm:px-7 sm:py-24 lg:px-10">
           <div className="about-paper-inner mx-auto grid max-w-[1540px] gap-10 lg:grid-cols-[.74fr_1.26fr] lg:gap-16">
             <div className="about-photo-wrap">
               {aboutPhoto ? <img src={aboutPhoto} alt="Фотография автора AsylDreams" className="about-photo" /> : <div className="about-photo-placeholder"><span>AS</span><p>Ваше<br />фото здесь</p></div>}
               <button type="button" className="about-upload" onClick={() => aboutInput.current?.click()}><Upload className="h-4 w-4" /> Добавить моё фото</button>
               <input ref={aboutInput} className="hidden" type="file" accept="image/*" onChange={chooseAboutPhoto} />
             </div>
-            <div className="about-copy">
+            <div className={`about-copy ${aboutVisible ? "is-visible" : ""}`}>
               <p className="paper-kicker"><span /> Обо мне / AsylDreams</p>
               <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.8vw,7.2rem)] leading-[0.8] tracking-[-0.07em]">СОБИРАЮ<br />СНЫ В КАДР.</h2>
               <p className="about-text">Я создаю AI-образы, где персонажи, цвет и атмосфера становятся отдельными историями. Мой Pinterest уже собрал 710 подписчиков и около 290K просмотров в месяц — и я продолжаю искать новые миры для каждой серии.</p>
