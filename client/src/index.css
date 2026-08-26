@@ -122,7 +122,7 @@
 .video-panel::before { content: ""; position: absolute; inset: 1rem; border: 1px solid rgba(29,37,71,.14); pointer-events: none; }
 .video-orbit { transition: transform 420ms cubic-bezier(0.23,1,0.32,1); }
 .public-video .video-orbit { position: relative; }
-.public-video .video-orbit::before { content: "MOOD 01"; position: absolute; z-index: 3; left: -2rem; top: 12%; border: 1px solid #1d2547; background: #b9e5e5; padding: .35rem .45rem; color: #1d2547; font-family: "JUZ", serif; font-size: .75rem; transform: rotate(-8deg); box-shadow: 3px 3px 0 #f04a36; }
+.public-video .video-orbit::before { content: "MOOD 01"; position: absolute; z-index: 3; right: -2.45rem; top: 50%; border: 1px solid #1d2547; background: #b9e5e5; padding: .35rem .45rem; color: #1d2547; font-family: "JUZ", serif; font-size: .75rem; transform: translateY(-50%) rotate(7deg); box-shadow: 3px 3px 0 #f04a36; }
 .public-video .video-orbit::after { content: ""; position: absolute; inset: -1.1rem; border: 1px dashed rgba(29,37,71,.5); border-radius: 50%; pointer-events: none; }
 .video-topline { min-height: 1.5rem; }
 .video-orbit { top: 42% !important; width: min(66vw, 340px) !important; }
@@ -438,7 +438,7 @@
   .series-card { min-height: 0; grid-template-columns: 1fr; }
   .series-cover-sheet { min-height: 280px; max-height: 380px; order: -1; }
   .public-video::after { right: .8rem; bottom: .8rem; font-size: .68rem; }
-  .public-video .video-orbit::before { left: -1rem; top: 8%; font-size: .65rem; }
+  .public-video .video-orbit::before { right: -1.25rem; top: 50%; font-size: .65rem; transform: translateY(-50%) rotate(7deg); }
   .series-card-copy { min-height: 300px; }
   .case-steps article { grid-template-columns: 1.7rem minmax(0,1fr); }
   .case-mockup-grid { grid-template-columns: 1fr; gap: 2.4rem; }
