@@ -6,6 +6,9 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import PinterestGallery from "./pages/PinterestGallery";
+import Series from "./pages/Series";
+import SeriesDetail from "./pages/SeriesDetail";
+import CaseStudy from "./pages/CaseStudy";
 
 // Moving Paper Gallery: application shell preserves the paper-gallery system in stored light and dark modes.
 
@@ -14,6 +17,9 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/pinterest"} component={PinterestGallery} />
+      <Route path={"/series"} component={Series} />
+      <Route path={"/series/:slug"} component={SeriesDetail} />
+      <Route path={"/cases/:slug"} component={CaseStudy} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
