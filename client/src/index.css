@@ -92,10 +92,6 @@
 @keyframes loader-portal-pulse { from { transform: rotate(-4deg) scale(.96); } to { transform: rotate(4deg) scale(1.04); } }
 @keyframes loader-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes loader-exit { to { opacity: 0; transform: translateY(-100%); } }
-@media (pointer: fine) { .paper-site, .paper-site * { cursor: none !important; } }
-.paper-cursor { position: fixed; z-index: 100; top: 0; left: 0; width: 26px; height: 26px; pointer-events: none; will-change: transform; margin: -13px 0 0 -13px; border: 2px solid #1d2547; border-radius: 50%; background: rgba(247,240,228,.78); box-shadow: 4px 4px 0 #f04a36; transition: width 180ms cubic-bezier(.23,1,.32,1), height 180ms cubic-bezier(.23,1,.32,1), background 180ms cubic-bezier(.23,1,.32,1); }
-.paper-cursor::before { content: ""; position: absolute; top: 5px; left: 5px; width: 10px; height: 10px; border-radius: 50%; background: #b9e5e5; border: 1px solid #1d2547; }
-.paper-cursor span { position: absolute; right: -5px; bottom: -5px; width: 8px; height: 8px; background: #f04a36; border: 1px solid #1d2547; }
 .paper-nav { background: #f7f0e4; }
 .paper-actions { display: flex; align-items: center; gap: .55rem; }
 .theme-toggle { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid #1d2547; background: #f7f0e4; padding: .54rem .6rem; font-family: "JUZ", serif; font-size: .83rem; letter-spacing: .02em; text-transform: uppercase; box-shadow: 2px 2px 0 #b9e5e5; transition: transform 180ms cubic-bezier(.23,1,.32,1), background 180ms cubic-bezier(.23,1,.32,1), color 180ms cubic-bezier(.23,1,.32,1); }
@@ -271,6 +267,9 @@
 .pinterest-toolbar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: clamp(3rem,6vw,6rem); }
 .pinterest-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
 .pinterest-grid { display: grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: clamp(1.5rem,3.2vw,4rem); align-items: start; }
+.pinterest-grid.is-filtering .pinterest-tile { animation: pinterest-reorder 420ms cubic-bezier(.23,1,.32,1) both; }
+.pinterest-grid.is-filtering .pinterest-tile:nth-child(2) { animation-delay: 45ms; }
+.pinterest-grid.is-filtering .pinterest-tile:nth-child(3) { animation-delay: 90ms; }
 .pinterest-tile { grid-column: span 4; }
 .pinterest-tile:nth-child(1), .pinterest-tile:nth-child(7) { grid-column: span 7; }
 .pinterest-tile:nth-child(2), .pinterest-tile:nth-child(8) { grid-column: 9 / span 4; margin-top: 5rem; }
@@ -279,9 +278,12 @@
 .pinterest-tile:nth-child(5) { grid-column: 4 / span 7; margin-top: 2rem; }
 .pinterest-card { overflow: hidden; background: #f7f0e4; box-shadow: 6px 6px 0 #1d2547; transition: transform 260ms cubic-bezier(.23,1,.32,1), box-shadow 260ms cubic-bezier(.23,1,.32,1); }
 .pinterest-card:hover { transform: translateY(-8px) rotate(-.5deg); box-shadow: 11px 12px 22px rgba(29,37,71,.22), 7px 7px 0 #f04a36; }
-.pinterest-card > a { display: block; color: #1d2547; }
-.pinterest-card-link { position: relative; overflow: hidden; }
-.pinterest-card img { display: block; width: 100%; height: auto; max-height: 52rem; object-fit: contain; background: #bfd4ef; }
+.pinterest-card-link { position: relative; display: block; width: 100%; overflow: hidden; border: 0; background: transparent; padding: 0; color: #1d2547; text-align: left; }
+.lazy-pinterest-image { position: relative; display: block; min-height: 12rem; overflow: hidden; background: #bfd4ef; }
+.lazy-pinterest-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 15%, rgba(255,248,237,.66) 48%, transparent 80%); transform: translateX(-110%); animation: lazy-sheen 1.35s ease-in-out infinite; transition: opacity 260ms ease; }
+.lazy-pinterest-image.is-loaded::after { opacity: 0; animation: none; }
+.pinterest-card img { display: block; width: 100%; height: auto; max-height: 52rem; object-fit: contain; background: #bfd4ef; opacity: 0; filter: blur(9px) saturate(.75); transform: scale(1.035); transition: opacity 480ms cubic-bezier(.23,1,.32,1), filter 480ms cubic-bezier(.23,1,.32,1), transform 480ms cubic-bezier(.23,1,.32,1); }
+.lazy-pinterest-image.is-loaded img { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
 .pinterest-card-overlay { position: absolute; inset: 0; display: flex; align-items: end; justify-content: space-between; gap: 1rem; background: linear-gradient(to top, rgba(18,26,49,.86), rgba(18,26,49,.14) 70%); padding: 1rem; color: #fff8ed; opacity: 0; transform: translateY(8px); transition: opacity 250ms cubic-bezier(.23,1,.32,1), transform 250ms cubic-bezier(.23,1,.32,1); }
 .pinterest-card-overlay strong { font-size: clamp(1.4rem,2.6vw,2.7rem); letter-spacing: -.055em; }
 .pinterest-card:hover .pinterest-card-overlay, .pinterest-card:focus-within .pinterest-card-overlay { opacity: 1; transform: translateY(0); }
@@ -329,13 +331,13 @@
 .dark .paper-work { color: #f7f0e4; }
 .dark .about-paper-inner { box-shadow: 10px 10px 0 #ffd385; }
 .dark .about-paper-inner::before, .dark .contact-plate::before { background: #121a31; color: #f7f0e4; border-color: rgba(247,240,228,.35); }
-.dark .paper-cursor { background: rgba(18,26,49,.85); border-color: #f7f0e4; }
 @keyframes portal-spin { to { transform: rotate(360deg); } }
 @keyframes paper-dissolve { 0% { opacity: .16; filter: blur(8px); transform: translateY(12px) scale(.985); } 100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); } }
 @keyframes page-appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pinterest-reorder { from { opacity: .14; transform: translateY(18px) scale(.975); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+@keyframes lazy-sheen { to { transform: translateX(110%); } }
 
 @media (max-width: 767px) {
-  .paper-cursor { display: none; }
   .theme-toggle span { display: none; }
   .video-orbit { top: 43% !important; width: min(67vw, 280px) !important; }
   .video-side-arrows button { width: 2.15rem; height: 2.15rem; }

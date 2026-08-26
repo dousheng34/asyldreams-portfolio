@@ -19,7 +19,6 @@ const featuredWorks = [
 export default function Home() {
   const { theme, toggleTheme } = useTheme();
   const [loaderPhase, setLoaderPhase] = useState<"visible" | "leaving" | "hidden">("visible");
-  const [cursor, setCursor] = useState({ x: -100, y: -100 });
   const [activeWorkIndex, setActiveWorkIndex] = useState<number | null>(null);
   const [photoTilt, setPhotoTilt] = useState({ x: 0, y: 0 });
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
@@ -34,7 +33,6 @@ export default function Home() {
     return () => { window.clearTimeout(exit); window.clearTimeout(hide); };
   }, []);
 
-  function moveCursor(event: PointerEvent<HTMLDivElement>) { setCursor({ x: event.clientX, y: event.clientY }); }
   function moveAboutPhoto(event: PointerEvent<HTMLDivElement>) { const rect = event.currentTarget.getBoundingClientRect(); setPhotoTilt({ x: ((event.clientX - rect.left) / rect.width - .5) * 8, y: ((event.clientY - rect.top) / rect.height - .5) * -8 }); }
   function moveWork(direction: number) { setActiveWorkIndex((index) => index === null ? 0 : (index + direction + featuredWorks.length) % featuredWorks.length); }
   async function sharePortfolio() {
@@ -47,9 +45,8 @@ export default function Home() {
     try { await navigator.clipboard.writeText(brief); setOrderStatus("copied"); } catch { setOrderStatus("ready"); }
   }
 
-  return <div className="paper-site page-transition min-h-screen overflow-x-hidden text-[#1d2547]" onPointerMove={moveCursor}>
+  return <div className="paper-site page-transition min-h-screen overflow-x-hidden text-[#1d2547]">
     {loaderPhase !== "hidden" && <div className={`paper-loader ${loaderPhase === "leaving" ? "is-leaving" : ""}`} role="status" aria-label="Загружается портфолио AsylDreams"><div className="loader-sheet"><div className="loader-portal" aria-hidden="true"><span className="loader-lens" /><span className="loader-dot" /></div><p className="loader-title">ОТКРЫВАЕМ<br />СНЫ</p><div className="loader-progress"><span /></div></div></div>}
-    <div className="paper-cursor" aria-hidden="true" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}><span /></div>
     <header className="paper-nav px-4 py-4 sm:px-7 lg:px-10"><div className="mx-auto flex max-w-[1540px] items-center justify-between"><a href="#top" className="paper-wordmark" aria-label="AsylDreams — в начало"><span className="portal-mark" aria-hidden="true"><span /></span><span>Asyl<br /><i>Dreams</i></span></a><nav className="hidden gap-7 text-[11px] font-semibold uppercase tracking-[0.14em] md:flex" aria-label="Основная навигация"><a href="#works">Работы</a><Link href="/pinterest">Pinterest</Link><a href="#order">Заказать</a><a href="#contacts">Контакты</a></nav><div className="paper-actions"><button type="button" onClick={toggleTheme} className="theme-toggle" aria-label={theme === "light" ? "Включить тёмную тему" : "Включить светлую тему"}>{theme === "light" ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}<span>{theme === "light" ? "Ночь" : "Свет"}</span></button><Link href="/pinterest" className="pinterest-pill">Pinterest <ArrowDownRight className="h-3.5 w-3.5" /></Link></div></div></header>
     <main id="top">
       <section className="hero-paper px-4 pb-16 pt-4 sm:px-7 sm:pb-24 lg:px-10"><div className="hero-paper-inner mx-auto grid max-w-[1540px] overflow-hidden lg:grid-cols-[1fr_minmax(420px,.88fr)]"><div className="hero-copy flex min-h-[540px] flex-col justify-between p-7 sm:p-10 lg:min-h-[680px] lg:p-14"><ScrollReveal><h1 className="juz-heading max-w-3xl text-[clamp(4.2rem,8.7vw,10rem)] leading-[0.75] tracking-[-0.075em]">МОИ<br />КАДРЫ</h1></ScrollReveal><a href="#works" className="round-arrow self-end" aria-label="Перейти к работам"><ArrowDownRight className="h-5 w-5" /></a></div><div className="video-panel public-video relative flex min-h-[540px] items-center justify-center overflow-hidden p-7 sm:p-10 lg:min-h-[680px]"><div className="video-orbit aspect-square w-[min(83vw,430px)] rounded-full border border-[#1d2547]/20 p-3 sm:w-[min(52vw,480px)]"><div className="relative h-full w-full overflow-hidden rounded-full border-4 border-[#FAF3E8] bg-[#B9E6E6] shadow-[14px_18px_0_rgba(29,37,71,0.16)]"><video autoPlay muted loop playsInline className="h-full w-full object-cover"><source src={defaultVideo} type="video/mp4" /></video></div></div></div></div></section>

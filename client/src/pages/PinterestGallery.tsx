@@ -1,6 +1,5 @@
-import { ArrowDownRight, ArrowUp, ArrowUpRight, Check, Moon, Pencil, Sun, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUp, ArrowUpRight, Check, ChevronLeft, ChevronRight, Moon, Pencil, Sun, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { PointerEvent } from "react";
 import { Link } from "wouter";
 import ScrollReveal from "@/components/ScrollReveal";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -11,6 +10,11 @@ const artBoardUrl = "https://www.pinterest.com/asyldreams/art/";
 
 type Category = "all" | "character" | "landscape" | "portrait";
 type Pin = { id: string; title: string; image: string; source: string; category: Exclude<Category, "all">; managed?: boolean };
+
+function LazyPinterestImage({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return <span className={`lazy-pinterest-image ${loaded ? "is-loaded" : ""}`}><img src={src} alt={alt} loading="lazy" decoding="async" onLoad={() => setLoaded(true)} /></span>;
+}
 
 const categories: { id: Category; label: string }[] = [
   { id: "all", label: "Все" }, { id: "character", label: "Персонажи" }, { id: "landscape", label: "Пейзажи" }, { id: "portrait", label: "Портреты" },
@@ -33,13 +37,14 @@ const archivePins: Pin[] = [
 
 export default function PinterestGallery() {
   const { theme, toggleTheme } = useTheme();
-  const [cursor, setCursor] = useState({ x: -100, y: -100 });
   const [pins, setPins] = useState<Pin[]>(initialPins);
   const [activeCategory, setActiveCategory] = useState<Category>("all");
+  const [isFiltering, setIsFiltering] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [source, setSource] = useState("");
   const [showTopButton, setShowTopButton] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   useEffect(() => {
     try {
@@ -67,14 +72,36 @@ export default function PinterestGallery() {
     setEditing(null);
   }
   function deletePin(id: string) { persist(pins.filter((pin) => pin.id !== id)); if (editing === id) setEditing(null); }
-  function moveCursor(event: PointerEvent<HTMLDivElement>) { setCursor({ x: event.clientX, y: event.clientY }); }
   function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   const collection = [...pins, ...archivePins];
   const visible = activeCategory === "all" ? collection : collection.filter((pin) => pin.category === activeCategory);
+  const previewPin = previewIndex === null ? null : visible[previewIndex];
 
-  return <div className="paper-site pinterest-page page-transition min-h-screen overflow-x-hidden text-[#1d2547]" onPointerMove={moveCursor}>
-    <div className="paper-cursor" aria-hidden="true" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}><span /></div>
+  useEffect(() => {
+    if (previewIndex === null) return;
+    const closeByKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPreviewIndex(null);
+      if (event.key === "ArrowLeft") setPreviewIndex((index) => index === null ? null : (index - 1 + visible.length) % visible.length);
+      if (event.key === "ArrowRight") setPreviewIndex((index) => index === null ? null : (index + 1) % visible.length);
+    };
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeByKey);
+    return () => { document.body.style.overflow = originalOverflow; window.removeEventListener("keydown", closeByKey); };
+  }, [previewIndex, visible.length]);
+
+  function chooseCategory(category: Category) {
+    if (category === activeCategory) return;
+    setActiveCategory(category);
+    setPreviewIndex(null);
+    setIsFiltering(true);
+    window.setTimeout(() => setIsFiltering(false), 420);
+  }
+
+  function movePreview(direction: number) { setPreviewIndex((index) => index === null ? 0 : (index + direction + visible.length) % visible.length); }
+
+  return <div className="paper-site pinterest-page page-transition min-h-screen overflow-x-hidden text-[#1d2547]">
     <header className="paper-nav px-4 py-4 sm:px-7 lg:px-10">
       <div className="mx-auto flex max-w-[1540px] items-center justify-between">
         <Link href="/" className="paper-wordmark" aria-label="AsylDreams — на главную"><span className="portal-mark" aria-hidden="true"><span /></span><span>Asyl<br /><i>Dreams</i></span></Link>
@@ -91,11 +118,11 @@ export default function PinterestGallery() {
       </section>
       <section className="pinterest-archive px-4 pb-20 sm:px-7 sm:pb-28 lg:px-10">
         <div className="mx-auto max-w-[1540px]">
-          <ScrollReveal className="pinterest-toolbar"><h2 className="juz-heading text-[clamp(2.9rem,6vw,6.2rem)] leading-[.75] tracking-[-.07em]">ВСЕ<br />РАБОТЫ</h2><div className="pinterest-filters">{categories.map((category) => <button key={category.id} type="button" onClick={() => setActiveCategory(category.id)} className={`gallery-filter ${activeCategory === category.id ? "is-active" : ""}`}>{category.label}</button>)}</div></ScrollReveal>
-          <div className="pinterest-grid">
+          <ScrollReveal className="pinterest-toolbar"><h2 className="juz-heading text-[clamp(2.9rem,6vw,6.2rem)] leading-[.75] tracking-[-.07em]">ВСЕ<br />РАБОТЫ</h2><div className="pinterest-filters">{categories.map((category) => <button key={category.id} type="button" onClick={() => chooseCategory(category.id)} className={`gallery-filter ${activeCategory === category.id ? "is-active" : ""}`}>{category.label}</button>)}</div></ScrollReveal>
+          <div className={`pinterest-grid ${isFiltering ? "is-filtering" : ""}`}>
             {visible.map((pin, index) => <ScrollReveal key={pin.id} delay={(index % 3) * 60} className={`pinterest-tile ${pin.category}`}>
               <article className="pinterest-card">
-                <a className="pinterest-card-link" href={pin.source || pinterestUrl} target="_blank" rel="noreferrer"><img src={pin.image} alt={pin.title} loading="lazy" /><span className="pinterest-card-overlay"><strong className="juz-heading">{pin.title}</strong><ArrowUpRight className="h-5 w-5" /></span></a>
+                <button type="button" className="pinterest-card-link" onClick={() => setPreviewIndex(index)} aria-label={`Открыть работу ${pin.title}`}><LazyPinterestImage src={pin.image} alt={pin.title} /><span className="pinterest-card-overlay"><strong className="juz-heading">{pin.title}</strong><ArrowUpRight className="h-5 w-5" /></span></button>
                 {pin.managed && (editing === pin.id ? <div className="pin-inline-editor"><input value={title} onChange={(event) => setTitle(event.target.value)} aria-label="Название пина" /><input value={source} onChange={(event) => setSource(event.target.value)} aria-label="Ссылка пина" /><button type="button" onClick={saveEdit}><Check className="h-3.5 w-3.5" /> Сохранить</button><button type="button" onClick={() => setEditing(null)}>Отмена</button></div> : <div className="pin-card-actions"><button type="button" onClick={() => beginEdit(pin)} aria-label={`Редактировать ${pin.title}`}><Pencil className="h-3.5 w-3.5" /></button><button type="button" onClick={() => deletePin(pin.id)} aria-label={`Удалить ${pin.title}`}><Trash2 className="h-3.5 w-3.5" /></button></div>)}
               </article>
             </ScrollReveal>)}
@@ -105,5 +132,6 @@ export default function PinterestGallery() {
       </section>
     </main>
     <button type="button" className={`back-to-top ${showTopButton ? "is-visible" : ""}`} onClick={scrollToTop} aria-label="Наверх"><ArrowUp className="h-4 w-4" /><span>Наверх</span></button>
+    {previewPin && <div className="lightbox pinterest-lightbox" role="dialog" aria-modal="true" aria-label={`Просмотр работы ${previewPin.title}`} onClick={() => setPreviewIndex(null)}><button type="button" className="lightbox-close" onClick={() => setPreviewIndex(null)} aria-label="Закрыть просмотр"><X className="h-5 w-5" /></button><button type="button" className="lightbox-nav is-left" onClick={(event) => { event.stopPropagation(); movePreview(-1); }} aria-label="Предыдущая работа"><ChevronLeft className="h-8 w-8" /></button><div className="lightbox-frame" onClick={(event) => event.stopPropagation()}><div className="lightbox-mat"><img src={previewPin.image} alt={previewPin.title} /></div><div className="lightbox-meta"><h3 className="juz-heading">{previewPin.title}</h3><a href={previewPin.source || pinterestUrl} target="_blank" rel="noreferrer">Открыть в Pinterest <ArrowUpRight className="h-4 w-4" /></a></div></div><button type="button" className="lightbox-nav is-right" onClick={(event) => { event.stopPropagation(); movePreview(1); }} aria-label="Следующая работа"><ChevronRight className="h-8 w-8" /></button></div>}
   </div>;
 }
