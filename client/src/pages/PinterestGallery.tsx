@@ -1,4 +1,4 @@
-import { ArrowDownRight, Check, Moon, Pencil, Sun, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUp, ArrowUpRight, Check, Moon, Pencil, Sun, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PointerEvent } from "react";
 import { Link } from "wouter";
@@ -39,12 +39,20 @@ export default function PinterestGallery() {
   const [editing, setEditing] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [source, setSource] = useState("");
+  const [showTopButton, setShowTopButton] = useState(false);
 
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem("asyldreams-new-pins");
       if (stored) setPins(JSON.parse(stored));
     } catch { /* Архив остаётся доступным с исходной подборкой. */ }
+  }, []);
+
+  useEffect(() => {
+    const updateTopButton = () => setShowTopButton(window.scrollY > 520);
+    updateTopButton();
+    window.addEventListener("scroll", updateTopButton, { passive: true });
+    return () => window.removeEventListener("scroll", updateTopButton);
   }, []);
 
   function persist(next: Pin[]) {
@@ -60,11 +68,12 @@ export default function PinterestGallery() {
   }
   function deletePin(id: string) { persist(pins.filter((pin) => pin.id !== id)); if (editing === id) setEditing(null); }
   function moveCursor(event: PointerEvent<HTMLDivElement>) { setCursor({ x: event.clientX, y: event.clientY }); }
+  function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   const collection = [...pins, ...archivePins];
   const visible = activeCategory === "all" ? collection : collection.filter((pin) => pin.category === activeCategory);
 
-  return <div className="paper-site pinterest-page min-h-screen overflow-x-hidden text-[#1d2547]" onPointerMove={moveCursor}>
+  return <div className="paper-site pinterest-page page-transition min-h-screen overflow-x-hidden text-[#1d2547]" onPointerMove={moveCursor}>
     <div className="paper-cursor" aria-hidden="true" style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}><span /></div>
     <header className="paper-nav px-4 py-4 sm:px-7 lg:px-10">
       <div className="mx-auto flex max-w-[1540px] items-center justify-between">
@@ -86,7 +95,7 @@ export default function PinterestGallery() {
           <div className="pinterest-grid">
             {visible.map((pin, index) => <ScrollReveal key={pin.id} delay={(index % 3) * 60} className={`pinterest-tile ${pin.category}`}>
               <article className="pinterest-card">
-                <a href={pin.source || pinterestUrl} target="_blank" rel="noreferrer"><img src={pin.image} alt={pin.title} loading="lazy" /><h3 className="juz-heading">{pin.title}</h3></a>
+                <a className="pinterest-card-link" href={pin.source || pinterestUrl} target="_blank" rel="noreferrer"><img src={pin.image} alt={pin.title} loading="lazy" /><span className="pinterest-card-overlay"><strong className="juz-heading">{pin.title}</strong><ArrowUpRight className="h-5 w-5" /></span></a>
                 {pin.managed && (editing === pin.id ? <div className="pin-inline-editor"><input value={title} onChange={(event) => setTitle(event.target.value)} aria-label="Название пина" /><input value={source} onChange={(event) => setSource(event.target.value)} aria-label="Ссылка пина" /><button type="button" onClick={saveEdit}><Check className="h-3.5 w-3.5" /> Сохранить</button><button type="button" onClick={() => setEditing(null)}>Отмена</button></div> : <div className="pin-card-actions"><button type="button" onClick={() => beginEdit(pin)} aria-label={`Редактировать ${pin.title}`}><Pencil className="h-3.5 w-3.5" /></button><button type="button" onClick={() => deletePin(pin.id)} aria-label={`Удалить ${pin.title}`}><Trash2 className="h-3.5 w-3.5" /></button></div>)}
               </article>
             </ScrollReveal>)}
@@ -95,5 +104,6 @@ export default function PinterestGallery() {
         </div>
       </section>
     </main>
+    <button type="button" className={`back-to-top ${showTopButton ? "is-visible" : ""}`} onClick={scrollToTop} aria-label="Наверх"><ArrowUp className="h-4 w-4" /><span>Наверх</span></button>
   </div>;
 }

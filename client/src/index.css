@@ -67,6 +67,8 @@
 }
 
 .paper-site { background: #f7f0e4; }
+.page-transition { animation: page-appear 440ms cubic-bezier(.23,1,.32,1) both; }
+.scroll-reveal { opacity: 0; transform: translateY(24px); transition: opacity 620ms cubic-bezier(.23,1,.32,1), transform 620ms cubic-bezier(.23,1,.32,1); }
 .scroll-reveal { opacity: 0; transform: translateY(24px); transition: opacity 620ms cubic-bezier(.23,1,.32,1), transform 620ms cubic-bezier(.23,1,.32,1); }
 .scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
 .paper-loader { position: fixed; z-index: 120; inset: 0; display: grid; place-items: center; overflow: hidden; background: #f7f0e4; color: #1d2547; }
@@ -278,8 +280,14 @@
 .pinterest-card { overflow: hidden; background: #f7f0e4; box-shadow: 6px 6px 0 #1d2547; transition: transform 260ms cubic-bezier(.23,1,.32,1), box-shadow 260ms cubic-bezier(.23,1,.32,1); }
 .pinterest-card:hover { transform: translateY(-8px) rotate(-.5deg); box-shadow: 11px 12px 22px rgba(29,37,71,.22), 7px 7px 0 #f04a36; }
 .pinterest-card > a { display: block; color: #1d2547; }
+.pinterest-card-link { position: relative; overflow: hidden; }
 .pinterest-card img { display: block; width: 100%; height: auto; max-height: 52rem; object-fit: contain; background: #bfd4ef; }
-.pinterest-card h3 { padding: .65rem .7rem; font-size: clamp(1.2rem,2vw,2rem); letter-spacing: -.045em; }
+.pinterest-card-overlay { position: absolute; inset: 0; display: flex; align-items: end; justify-content: space-between; gap: 1rem; background: linear-gradient(to top, rgba(18,26,49,.86), rgba(18,26,49,.14) 70%); padding: 1rem; color: #fff8ed; opacity: 0; transform: translateY(8px); transition: opacity 250ms cubic-bezier(.23,1,.32,1), transform 250ms cubic-bezier(.23,1,.32,1); }
+.pinterest-card-overlay strong { font-size: clamp(1.4rem,2.6vw,2.7rem); letter-spacing: -.055em; }
+.pinterest-card:hover .pinterest-card-overlay, .pinterest-card:focus-within .pinterest-card-overlay { opacity: 1; transform: translateY(0); }
+.back-to-top { position: fixed; z-index: 60; right: 1.25rem; bottom: 1.25rem; display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #1d2547; background: #f7f0e4; padding: .55rem .65rem; color: #1d2547; font-family: "JUZ", serif; font-size: .88rem; box-shadow: 4px 4px 0 #f04a36; opacity: 0; pointer-events: none; transform: translateY(12px) rotate(1deg); transition: opacity 180ms cubic-bezier(.23,1,.32,1), transform 180ms cubic-bezier(.23,1,.32,1), background 180ms cubic-bezier(.23,1,.32,1), color 180ms cubic-bezier(.23,1,.32,1); }
+.back-to-top.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0) rotate(0); }
+.back-to-top:hover { background: #1d2547; color: #fff8ed; transform: translate(-2px,-2px); }
 .pinterest-end { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-top: clamp(5rem,10vw,12rem); border-top: 2px solid #1d2547; padding-top: 1.3rem; }
 .pinterest-end p { font-size: clamp(3rem,7vw,7rem); line-height: .75; letter-spacing: -.07em; }
 
@@ -290,6 +298,8 @@
 .dark .pinterest-hero-copy p, .dark .pinterest-hero-copy a, .dark .pinterest-end a { color: #f7f0e4; border-color: #f7f0e4; }
 .dark .pinterest-card { box-shadow: 6px 6px 0 #f04a36; }
 .dark .pinterest-card > a { color: #1d2547; }
+.dark .back-to-top { border-color: #f7f0e4; background: #1d2547; color: #f7f0e4; box-shadow: 4px 4px 0 #f04a36; }
+.dark .back-to-top:hover { background: #f7f0e4; color: #1d2547; }
 .dark .pinterest-end { border-color: #f7f0e4; }
 .dark .new-pins-paper, .dark .order-paper { background: #121a31; }
 .dark .new-pins-inner { box-shadow: 10px 10px 0 #f04a36; }
@@ -322,6 +332,7 @@
 .dark .paper-cursor { background: rgba(18,26,49,.85); border-color: #f7f0e4; }
 @keyframes portal-spin { to { transform: rotate(360deg); } }
 @keyframes paper-dissolve { 0% { opacity: .16; filter: blur(8px); transform: translateY(12px) scale(.985); } 100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); } }
+@keyframes page-appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 767px) {
   .paper-cursor { display: none; }
@@ -344,6 +355,9 @@
   .pinterest-tile:nth-child(even) { margin-left: 9%; }
   .pinterest-tile:nth-child(odd) { margin-right: 9%; }
   .pinterest-end { align-items: start; flex-direction: column; }
+  .pinterest-card-overlay { position: static; min-height: auto; padding: .55rem .65rem; background: #1d2547; color: #fff8ed; opacity: 1; transform: none; }
+  .pinterest-card-overlay strong { font-size: 1.25rem; }
+  .back-to-top { right: .8rem; bottom: .8rem; }
   .contact-paper { min-width: min(100%, 16rem); }
   .contact-routes { border-left: 0; border-top: 1px solid rgba(29,37,71,.24); padding-left: 0; padding-top: 1.5rem; }
   .about-paper-inner { padding-bottom: 2.8rem; }
