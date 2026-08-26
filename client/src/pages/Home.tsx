@@ -164,7 +164,7 @@ export default function Home() {
         <div className="loader-sheet">
           <p className="loader-index">ASYLDREAMS / ПЕРВЫЙ КАДР</p>
           <div className="loader-portal" aria-hidden="true"><span className="loader-lens" /><span className="loader-dot" /></div>
-          <p className="loader-title">ОТКРЫВАЕМ<br />СНЫ<span>.</span></p>
+          <p className="loader-title">ОТКРЫВАЕМ<br />СНЫ</p>
           <div className="loader-progress"><span /><i>01 / 01</i></div>
         </div>
       </div>}
@@ -197,7 +197,7 @@ export default function Home() {
             <div className="hero-copy flex min-h-[540px] flex-col justify-between p-7 sm:p-10 lg:min-h-[680px] lg:p-14">
               <div>
                 <p className="paper-kicker"><span /> Кадры, которые меняют настроение</p>
-                <h1 className="juz-heading mt-10 max-w-3xl text-[clamp(4.2rem,8.7vw,10rem)] leading-[0.75] tracking-[-0.075em]">МОИ<br />КАДРЫ<span className="text-[#F04A36]">.</span></h1>
+                <h1 className="juz-heading mt-10 max-w-3xl text-[clamp(4.2rem,8.7vw,10rem)] leading-[0.75] tracking-[-0.075em]">МОИ<br />КАДРЫ</h1>
                 <p className="mt-9 max-w-sm text-sm font-medium leading-6 text-[#1d2547]/70 sm:text-base">Пять визуальных снов, которым не нужна рамка. Смотри медленно — и выбирай свой цвет для движения.</p>
               </div>
               <div className="flex flex-wrap items-end justify-between gap-6 border-t border-[#1d2547]/15 pt-5">
@@ -229,7 +229,7 @@ export default function Home() {
             <div className="mb-12 flex flex-col justify-between gap-7 md:flex-row md:items-end">
               <div>
                 <p className="paper-kicker"><span /> Pinterest / Art board</p>
-                <h2 className="juz-heading mt-4 text-[clamp(3.2rem,6vw,6.5rem)] leading-[0.8] tracking-[-0.065em]">ПЯТЬ<br />ИЗБРАННЫХ.</h2>
+                <h2 className="juz-heading mt-4 text-[clamp(3.2rem,6vw,6.5rem)] leading-[0.8] tracking-[-0.065em]">ПЯТЬ<br />ИЗБРАННЫХ</h2>
               </div>
               <a href={artBoardUrl} target="_blank" rel="noreferrer" className="text-link">Открыть всю доску <ChevronRight className="h-4 w-4" /></a>
             </div>
@@ -263,20 +263,20 @@ export default function Home() {
           <div className="new-pins-inner mx-auto max-w-[1540px] p-7 sm:p-10 lg:grid lg:grid-cols-[1.05fr_.95fr] lg:gap-14 lg:p-14">
             <div>
               <p className="paper-kicker"><span /> Pinterest / Fresh sheet</p>
-              <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.6vw,6.6rem)] leading-[0.78] tracking-[-0.07em]">НОВЫЕ<br />ПИНЫ.</h2>
+              <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.6vw,6.6rem)] leading-[0.78] tracking-[-0.07em]">НОВЫЕ<br />ПИНЫ</h2>
               <p className="new-pins-intro">Свежая подборка готовых работ. Для владельца доступны короткое редактирование названия и ссылки, а также удаление карточки.</p>
               <div className="new-pins-grid mt-8">
                 {newPins.length ? newPins.map((pin) => <article key={pin.id} className="new-pin-card"><a href={pin.source || pinterestUrl} target="_blank" rel="noreferrer"><img src={pin.image} alt={pin.title} /><span>{pin.title}</span></a>{editingPinId === pin.id ? <div className="pin-inline-editor"><input value={editPinTitle} onChange={(event) => setEditPinTitle(event.target.value)} aria-label="Название пина" /><input value={editPinSource} onChange={(event) => setEditPinSource(event.target.value)} aria-label="Ссылка пина" /><button type="button" onClick={savePinEdit}>Сохранить</button><button type="button" onClick={() => setEditingPinId(null)}>Отмена</button></div> : <div className="pin-card-actions"><button type="button" onClick={() => startPinEdit(pin)} aria-label={`Редактировать ${pin.title}`}><Pencil className="h-3.5 w-3.5" /></button><button type="button" onClick={() => deletePin(pin.id)} aria-label={`Удалить ${pin.title}`}><Trash2 className="h-3.5 w-3.5" /></button></div>}</article>) : <div className="new-pins-empty"><Sparkles className="h-5 w-5" /><p>Витрина пока<br />без новых работ.</p></div>}
               </div>
             </div>
-            <aside className="fresh-pins-note mt-10 lg:mt-0"><span className="portal-mark" aria-hidden="true"><span /></span><p>ВИТРИНА<br />ГОТОВЫХ<br />РАБОТ.</p><small>Фото и видео добавляются только при подготовке сайта, а не посетителями.</small></aside>
+            <aside className="fresh-pins-note mt-10 lg:mt-0"><span className="portal-mark" aria-hidden="true"><span /></span><p>ВИТРИНА<br />ГОТОВЫХ<br />РАБОТ</p><small>Фото и видео добавляются только при подготовке сайта, а не посетителями.</small></aside>
           </div>
         </section>
 
         <section className="note-paper px-4 py-16 sm:px-7 sm:py-24 lg:px-10">
           <div className="mx-auto grid max-w-[1540px] gap-10 lg:grid-cols-[.72fr_1.28fr]">
             <div className="sticker-note"><Sparkles className="h-7 w-7" /><span>New mood<br />every frame</span></div>
-            <p className="juz-heading max-w-5xl text-[clamp(3rem,5.8vw,7.5rem)] leading-[0.81] tracking-[-0.065em]">КАДРЫ МОГУТ<br /><i className="text-[#F04A36]">МЕНЯТЬ СВЕТ.</i></p>
+            <p className="juz-heading max-w-5xl text-[clamp(3rem,5.8vw,7.5rem)] leading-[0.81] tracking-[-0.065em]">КАДРЫ МОГУТ<br /><i className="text-[#F04A36]">МЕНЯТЬ СВЕТ</i></p>
           </div>
         </section>
 
@@ -287,7 +287,7 @@ export default function Home() {
             </div>
             <div className={`about-copy ${aboutVisible ? "is-visible" : ""}`}>
               <p className="paper-kicker"><span /> Обо мне / AsylDreams</p>
-              <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.8vw,7.2rem)] leading-[0.8] tracking-[-0.07em]">СОБИРАЮ<br />СНЫ В КАДР.</h2>
+              <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.8vw,7.2rem)] leading-[0.8] tracking-[-0.07em]">СОБИРАЮ<br />СНЫ В КАДР</h2>
               <p className="about-text">Я создаю AI-образы, где персонажи, цвет и атмосфера становятся отдельными историями. Мой Pinterest уже собрал 710 подписчиков и около 290K просмотров в месяц — и я продолжаю искать новые миры для каждой серии.</p>
               <div className="about-stats"><span><b>710</b> подписчиков</span><span><b>290K</b> просмотров / месяц</span><span><b>∞</b> будущих миров</span></div>
             </div>
@@ -298,7 +298,7 @@ export default function Home() {
           <div className="order-paper-inner mx-auto max-w-[1540px] p-7 sm:p-10 lg:grid lg:grid-cols-[.8fr_1.2fr] lg:gap-16 lg:p-14">
             <div>
               <p className="paper-kicker"><span /> Commission sheet</p>
-              <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.6vw,6.6rem)] leading-[0.78] tracking-[-0.07em]">ЗАКАЖИ<br />СВОЙ МИР.</h2>
+              <h2 className="juz-heading mt-5 text-[clamp(3.1rem,5.6vw,6.6rem)] leading-[0.78] tracking-[-0.07em]">ЗАКАЖИ<br />СВОЙ МИР</h2>
               <p className="order-intro">Выберите формат, опишите настроение и добавьте ссылки. Форма соберёт готовый бриф, который можно отправить мне в личные сообщения Pinterest или Instagram.</p>
             </div>
             <form className="order-form mt-10 lg:mt-0" onSubmit={prepareOrder}>
@@ -316,7 +316,7 @@ export default function Home() {
         <section id="contacts" className="contacts-paper px-4 pb-8 pt-16 sm:px-7 sm:pt-24 lg:px-10">
           <div className="contact-plate mx-auto max-w-[1540px] overflow-hidden p-7 sm:p-10 lg:grid lg:grid-cols-[1.1fr_.9fr] lg:p-14">
             <div className="flex flex-col justify-between gap-12">
-              <div><p className="paper-kicker"><span /> AsylDreams / Moving Paper</p><h2 className="juz-heading mt-5 text-[clamp(3.2rem,6.5vw,7.5rem)] leading-[0.8] tracking-[-0.07em]">СМОТРИ<br />ДАЛЬШЕ.</h2></div>
+              <div><p className="paper-kicker"><span /> AsylDreams / Moving Paper</p><h2 className="juz-heading mt-5 text-[clamp(3.2rem,6.5vw,7.5rem)] leading-[0.8] tracking-[-0.07em]">СМОТРИ<br />ДАЛЬШЕ</h2></div>
               <a className="pinterest-portal" href={pinterestUrl} target="_blank" rel="noreferrer"><span className="portal-orbit"><span>P</span></span><span>Смотреть в Pinterest</span><ArrowDownRight className="h-6 w-6" /></a>
               <button type="button" className="share-paper" onClick={sharePortfolio}>{shareStatus === "copied" ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}{shareStatus === "copied" ? "Ссылка скопирована" : "Поделиться"}</button>
             </div>
