@@ -50,5 +50,5 @@ npm run preview
 ## Деплой
 
 Пуш в `main` → GitHub Actions собирает проект и публикует на Pages (`.github/workflows/deploy.yml`).
-В настройках репозитория `Settings → Pages → Source` должно стоять **GitHub Actions**.
+**Важно:** в настройках репозитория `Settings → Pages → Build and deployment → Source` должно стоять **GitHub Actions** (не «Deploy from a branch»). Иначе GitHub параллельно публикует сырой `index.html` из корня и сайт ломается.
 Для своего домена задай `VITE_BASE=/` при сборке.
