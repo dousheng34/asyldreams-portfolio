@@ -23,8 +23,12 @@ export default function Nav() {
   const time = useLocalTime();
 
   useEffect(() => {
+    gsap.set(bar.current, { yPercent: -100, opacity: 0 });
+  }, []);
+
+  useEffect(() => {
     if (!ready) return;
-    gsap.fromTo(bar.current, { yPercent: -100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.2, delay: 0.4 });
+    gsap.to(bar.current, { yPercent: 0, opacity: 1, duration: 1.2, delay: 0.4, overwrite: true });
   }, [ready]);
 
   useEffect(() => {
@@ -74,7 +78,7 @@ export default function Nav() {
 
   return (
     <>
-      <header ref={bar} className="fixed inset-x-0 top-0 z-[120] opacity-0" style={{ transform: "translateY(-100%)" }}>
+      <header ref={bar} className="fixed inset-x-0 top-0 z-[120]">
         <div className="nav-blur pointer-events-none absolute inset-0 h-[140%]" />
         <div className="container-x relative flex items-center justify-between py-5">
           <a href="#top" onClick={go("#top")} className="display text-[15px] font-semibold tracking-tight" aria-label="AsylDreams — в начало">

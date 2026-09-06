@@ -22,7 +22,7 @@ export default function Manifesto() {
     <section ref={root} className="container-x py-28 sm:py-36 lg:py-48">
       <div className="grid gap-8 lg:grid-cols-12">
         <span className="eyebrow lg:col-span-2">Манифест</span>
-        <p className="display max-w-[22ch] text-[clamp(1.9rem,4.6vw,4.6rem)] font-medium leading-[1.05] normal-case lg:col-span-10">
+        <p className="max-w-[24ch] font-sans text-[clamp(1.9rem,4.4vw,4.4rem)] font-medium leading-[1.08] tracking-[-0.02em] lg:col-span-10">
           Кадр — это не картинка, а настроение, которое остаётся на экране блокировки месяцами. Я собираю свет, цвет и тишину так, чтобы
           <span className="serif-i text-amber"> хотелось смотреть ещё</span>.
         </p>

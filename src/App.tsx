@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppContext, type LightboxState } from "@/lib/store";
 import { initScroll } from "@/lib/scroll";
-import { ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { initMagnetic } from "@/lib/magnetic";
 import Preloader from "@/components/Preloader";
 import Cursor from "@/components/Cursor";
 import Nav from "@/components/Nav";
@@ -26,6 +27,18 @@ export default function App() {
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
   }, []);
 
+  useEffect(() => {
+    if (!ready) return;
+    const off = initMagnetic();
+    // полоска прогресса чтения сверху
+    const bar = document.querySelector<HTMLElement>(".scroll-progress");
+    const st = ScrollTrigger.create({ start: 0, end: () => document.documentElement.scrollHeight - window.innerHeight, onUpdate: (s) => gsap.set(bar, { scaleX: s.progress }) });
+    return () => {
+      off();
+      st.kill();
+    };
+  }, [ready]);
+
   const openLightbox = useCallback((keys: string[], index: number) => setLightbox({ keys, index }), []);
   const ctx = useMemo(() => ({ ready, openLightbox }), [ready, openLightbox]);
 
@@ -34,6 +47,7 @@ export default function App() {
       <Preloader onDone={() => setReady(true)} />
       <Cursor />
       <div className="grain" aria-hidden="true" />
+      <div className="scroll-progress" aria-hidden="true" />
       <Nav />
       <main>
         <Hero />

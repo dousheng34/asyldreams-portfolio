@@ -58,22 +58,22 @@ export default function Series() {
       </div>
 
       <div ref={track} className="mt-14 flex flex-col gap-16 lg:mt-0 lg:h-full lg:flex-row lg:items-end lg:gap-0 lg:pb-20 lg:pt-56">
-        {series.map((s, i) => {
+        {series.map((s) => {
           const cover = works[s.works[0]];
           return (
             <article
               key={s.slug}
               data-panel
-              className="container-x flex shrink-0 flex-col gap-8 lg:w-[78vw] lg:flex-row lg:items-end lg:gap-10 lg:pr-0"
+              className="container-x flex shrink-0 flex-col gap-8 lg:w-auto lg:flex-row lg:items-end lg:gap-10 lg:pr-[8vw]"
             >
               <button
                 type="button"
                 data-cursor="Смотреть"
                 onClick={() => openLightbox(s.works, 0)}
-                className={`work-card group relative block w-full text-left lg:w-auto ${s.ratio === "16:9" ? "lg:h-[42vh]" : "lg:h-[50vh]"}`}
+                className="work-card group relative block w-full text-left lg:h-[50vh] lg:w-auto"
                 aria-label={`Открыть серию ${s.title}`}
               >
-                <div className={`work-mat lg:h-full lg:w-auto ${s.ratio === "16:9" ? "aspect-[16/10]" : "aspect-[4/5]"}`} style={{ ["--mat" as string]: cover.color }}>
+                <div className={`work-mat lg:h-full lg:w-auto ${s.ratio === "16:9" ? "aspect-[16/9]" : "aspect-[9/16]"}`} style={{ ["--mat" as string]: cover.color }}>
                   <ArtImage work={cover} sizes="(min-width:1024px) 40vw, 100vw" className="scale-[1.18]" />
                   <span className="pointer-events-none absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-paper backdrop-blur">
                     {s.works.length} работ
@@ -81,10 +81,10 @@ export default function Series() {
                 </div>
               </button>
 
-              <div className="flex min-w-0 flex-1 flex-col justify-between gap-8 lg:h-[46vh] lg:pr-[4vw]">
+              <div className="flex min-w-0 flex-1 flex-col justify-between gap-8 lg:h-[50vh] lg:w-[26vw] lg:flex-none">
                 <div>
                   <p className="eyebrow">{s.eyebrow} · {s.ratio}</p>
-                  <h3 className="display mt-3 text-[clamp(1.8rem,2.9vw,3.2rem)] leading-[0.95] font-medium">{s.title}</h3>
+                  <h3 className="display mt-3 text-[clamp(1.8rem,2.6vw,2.9rem)] leading-[0.95]">{s.title}</h3>
                   <p className="mt-5 max-w-[38ch] text-[16px] leading-[1.5] text-paper/70 sm:text-[17px]">{s.desc}</p>
                 </div>
                 <div>
@@ -95,7 +95,7 @@ export default function Series() {
                         type="button"
                         data-cursor="Открыть"
                         onClick={() => openLightbox(s.works, j + 1)}
-                        className="relative h-20 w-14 shrink-0 overflow-hidden rounded-[2px] opacity-70 transition-opacity duration-300 hover:opacity-100 sm:h-24 sm:w-[68px]"
+                        className={`relative shrink-0 overflow-hidden rounded-[2px] opacity-70 transition-opacity duration-300 hover:opacity-100 ${s.ratio === "16:9" ? "h-14 w-24" : "h-24 w-[54px]"}`}
                         aria-label={`Открыть ${works[k].title}`}
                       >
                         <ArtImage work={works[k]} sizes="80px" />
@@ -107,7 +107,7 @@ export default function Series() {
                   </button>
                 </div>
               </div>
-              {i === series.length - 1 && <div className="hidden w-[10vw] shrink-0 lg:block" />}
+              
             </article>
           );
         })}

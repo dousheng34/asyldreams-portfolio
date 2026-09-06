@@ -65,7 +65,7 @@ export default function Hero() {
               <span className="serif-i text-[1.25em] text-amber">350 000+</span> человек.
             </p>
             <div data-hero-fade className="flex items-center gap-3">
-              <button type="button" onClick={() => scrollTo("#works", -8)} className="btn-magnetic border hairline px-6 py-3 text-[12px] uppercase tracking-[0.16em]">
+              <button type="button" onClick={() => scrollTo("#works", -8)} data-magnetic className="btn-magnetic border hairline px-6 py-3 text-[12px] uppercase tracking-[0.16em]">
                 <span className="fill" />
                 <span className="flex items-center gap-2">
                   Смотреть работы <ArrowDown className="h-3.5 w-3.5" />
@@ -79,12 +79,12 @@ export default function Hero() {
         </div>
 
         <div data-hero-portal className="relative lg:col-span-4 lg:col-start-9">
-          <div className="relative ml-auto aspect-[3/4] w-full max-w-[420px] overflow-hidden rounded-[2px] lg:aspect-[9/13]" data-cursor="Листать">
+          <div className="relative ml-auto aspect-[9/16] w-full max-w-[360px] overflow-hidden rounded-[2px] lg:max-h-[72vh]" data-cursor="Листать">
             <HeroCanvas keys={heroKeys} active={ready} className="absolute inset-0" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between p-4">
-              <span data-hero-fade className="eyebrow text-paper/70">Избранные кадры</span>
-              <span data-hero-fade className="eyebrow text-paper/70">Портрет · 4K</span>
-            </div>
+          </div>
+          <div className="mt-3 flex items-center justify-between lg:max-w-[360px] lg:ml-auto">
+            <span data-hero-fade className="eyebrow">Ночные обои</span>
+            <span data-hero-fade className="eyebrow">9:16 · 4K</span>
           </div>
         </div>
       </div>

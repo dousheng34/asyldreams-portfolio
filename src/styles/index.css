@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Авторский шрифт JUZ40 — все заголовки. Кириллица, казахские буквы и латиница в одном файле. */
+@font-face {
+  font-family: "JUZ40";
+  src: url("../assets/juz40-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-ink: #0a0a0b;
   --color-ink-2: #121214;
@@ -9,7 +18,7 @@
   --color-mute: #8d8a83;
   --color-amber: #e6b04f;
   --color-coral: #d97a6c;
-  --font-display: "Unbounded", "Inter Tight", system-ui, sans-serif;
+  --font-display: "JUZ40", "Unbounded", "Inter Tight", system-ui, sans-serif;
   --font-sans: "Inter Tight", system-ui, -apple-system, sans-serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -74,10 +83,25 @@
   }
   .display {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.035em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     line-height: 0.92;
     text-transform: uppercase;
+  }
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 130;
+    background: var(--color-amber);
+    transform-origin: left;
+    transform: scaleX(0);
+    pointer-events: none;
+  }
+  [data-magnetic] {
+    will-change: transform;
   }
   .serif-i {
     font-family: var(--font-serif);

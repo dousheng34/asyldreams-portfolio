@@ -58,7 +58,7 @@ export default function Order() {
               </li>
             ))}
           </ul>
-          <a data-order-fade href={profile.pinterest} target="_blank" rel="noreferrer" className="btn-magnetic mt-10 border hairline px-7 py-4 text-[12px] uppercase tracking-[0.16em]">
+          <a data-order-fade href={profile.pinterest} target="_blank" rel="noreferrer" data-magnetic className="btn-magnetic mt-10 border hairline px-7 py-4 text-[12px] uppercase tracking-[0.16em]">
             <span className="fill" />
             <span className="flex items-center gap-2">
               Написать в Pinterest <ArrowUpRight className="h-3.5 w-3.5" />
@@ -88,7 +88,7 @@ export default function Order() {
             <textarea name="refs" rows={2} placeholder="Ссылки на Pinterest, Behance или сайт" />
           </label>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <button type="submit" className="btn-magnetic bg-paper px-7 py-4 text-[12px] uppercase tracking-[0.16em] text-ink">
+            <button type="submit" data-magnetic className="btn-magnetic bg-paper px-7 py-4 text-[12px] uppercase tracking-[0.16em] text-ink">
               <span className="fill !bg-amber" />
               <span className="flex items-center gap-2">
                 {status === "copied" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
