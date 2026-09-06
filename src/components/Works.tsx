@@ -26,8 +26,8 @@ function Block({ title, ratio, keys, cols, aspect, offset }: { title: string; ra
                 <div className={`work-mat reveal-img ${aspect}`} style={{ ["--mat" as string]: w.color }}>
                   <ArtImage work={w} sizes="(min-width:1024px) 30vw, (min-width:640px) 50vw, 100vw" className="scale-[1.08]" />
                 </div>
-                <div className="mt-3 flex items-baseline justify-between gap-3">
-                  <h4 data-work-meta className="display truncate text-[clamp(1rem,1.3vw,1.25rem)]">{w.title}</h4>
+                <div className="mt-3 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+                  <h4 data-work-meta className="display text-[clamp(0.95rem,1.3vw,1.25rem)] leading-tight">{w.title}</h4>
                   <span data-work-meta className="eyebrow shrink-0">{s?.title}</span>
                 </div>
               </button>
